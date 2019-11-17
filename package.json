@@ -1,0 +1,30 @@
+{
+  "name": "seeded-random-utilities",
+  "version": "1.0.0",
+  "description": "Common random functions that are seedable with TypeScript support",
+  "main": "index.js",
+  "scripts": {
+    "test": "NODE_ENV=test ./node_modules/.bin/jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/m4bwav/seeded-random-utilities.git"
+  },
+  "keywords": [
+    "random",
+    "seed",
+    "randomly",
+    "rand",
+    "generator",
+    "utility"
+  ],
+  "author": "Mark Rogers (http://www.markdavidrogers.com/)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/m4bwav/seeded-random-utilities/issues"
+  },
+  "homepage": "https://github.com/m4bwav/seeded-random-utilities#readme",
+  "devDependencies": {
+    "typescript": "^3.7.2"
+  }
+}
