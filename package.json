@@ -2,9 +2,17 @@
   "name": "seeded-random-utilities",
   "version": "1.0.0",
   "description": "Common random functions that are seedable with TypeScript support",
-  "main": "index.js",
+  "main": "dist/seeded-random-utilities.js",
+  "module": "dist/seeded-random-utilities.es.js",
+  "files": [
+    "dist"
+  ],
+  "types": "dist/index.d.ts",
   "scripts": {
-    "test": "NODE_ENV=test ./node_modules/.bin/jest"
+    "lint": "./node_modules/.bin/eslint --ext .ts ./",
+    "test": "NODE_ENV=test ./node_modules/.bin/jest",
+    "build": "./node_modules/.bin/rollup --config",
+    "watch": "./node_modules/.bin/rollup --config --watch"
   },
   "repository": {
     "type": "git",
@@ -25,6 +33,22 @@
   },
   "homepage": "https://github.com/m4bwav/seeded-random-utilities#readme",
   "devDependencies": {
+    "@types/jest": "^24.0.23",
+    "@typescript-eslint/eslint-plugin": "^2.7.0",
+    "@typescript-eslint/parser": "^2.7.0",
+    "eslint-plugin-jest": "^23.0.4",
+    "jest": "^24.9.0",
+    "rollup": "^1.27.0",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-eslint": "^7.0.0",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "rollup-plugin-sourcemaps": "^0.4.2",
+    "rollup-plugin-terser": "^5.1.2",
+    "rollup-plugin-typescript2": "^0.25.2",
+    "rollup-plugin-uglify": "^6.0.3",
     "typescript": "^3.7.2"
+  },
+  "dependencies": {
+    "rand-seed": "^0.1.2"
   }
 }
