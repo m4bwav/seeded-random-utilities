@@ -1,4 +1,4 @@
-//This code was taken from Micaheldzjap's repo: https://github.com/michaeldzjap/rand-seed/blob/master/rollup.config.js
+//This code was taken and modified from Micaheldzjap's repo: https://github.com/michaeldzjap/rand-seed/blob/master/rollup.config.js
 import resolve from 'rollup-plugin-node-resolve';
 import commonjs from 'rollup-plugin-commonjs';
 import sourceMaps from 'rollup-plugin-sourcemaps';

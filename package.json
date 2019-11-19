@@ -10,7 +10,7 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "lint": "./node_modules/.bin/eslint --ext .ts ./",
-    "test": "NODE_ENV=test ./node_modules/.bin/jest",
+    "test": "./node_modules/.bin/jest",
     "build": "./node_modules/.bin/rollup --config",
     "watch": "./node_modules/.bin/rollup --config --watch"
   },
@@ -36,6 +36,7 @@
     "@types/jest": "^24.0.23",
     "@typescript-eslint/eslint-plugin": "^2.7.0",
     "@typescript-eslint/parser": "^2.7.0",
+    "eslint": "^6.6.0",
     "eslint-plugin-jest": "^23.0.4",
     "jest": "^24.9.0",
     "rollup": "^1.27.0",
@@ -46,6 +47,7 @@
     "rollup-plugin-terser": "^5.1.2",
     "rollup-plugin-typescript2": "^0.25.2",
     "rollup-plugin-uglify": "^6.0.3",
+    "ts-jest": "^24.1.0",
     "typescript": "^3.7.2"
   },
   "dependencies": {

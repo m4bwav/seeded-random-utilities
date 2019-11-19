@@ -60,3 +60,6 @@ typings/
 # next.js build output
 .next
 /dist
+/.idea
+.DS_Store
+.rpt2_cache

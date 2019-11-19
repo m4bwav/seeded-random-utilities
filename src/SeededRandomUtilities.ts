@@ -52,7 +52,8 @@ export default class SeededRandomUtilities implements ISeededRandomUtilities {
 
    public generateRandomArrayOfUniqueIntegers(
        amount: number,
-       maxValue: number
+       maxValue: number,
+       skipShuffle = false
    ): number[] {
        if (amount < zero) {
            throw new Error('Parameter amount cannot be negative');
@@ -60,8 +61,12 @@ export default class SeededRandomUtilities implements ISeededRandomUtilities {
 
        const uniqueConsecutiveNumbers: number[] = [];
 
-       for (let index = 0; index < maxValue; index++) {
+       for (let index = 0; index <= maxValue; index++) {
            uniqueConsecutiveNumbers.push(index);
+       }
+
+       if (!skipShuffle) {
+           this.shuffle(uniqueConsecutiveNumbers, false);
        }
 
        return this.selectUniqueRandomElements(uniqueConsecutiveNumbers, amount);
@@ -73,6 +78,35 @@ export default class SeededRandomUtilities implements ISeededRandomUtilities {
        }
 
        return this.selectUniqueRandomElements<T>(source, one)[zero];
+   }
+
+   // Inspired by npm package shuffle-arr
+   // https://github.com/mock-end/shuffle-arr/blob/master/index.js
+   public shuffle<T>(array: T[], copy = true): T[]|string {
+       if (!array) {
+           return array;
+       }
+
+       // Copy array or use parameter
+       const isAString = typeof array === 'string';
+       const result = copy || isAString
+           ? [].slice.call(array)
+           : array;
+
+       let {length} = array;
+       let random;
+       let temp;
+
+       while (length) {
+           random = Math.floor(this.random() * length);
+           length -= one;
+
+           temp = result[length];
+           result[length] = result[random];
+           result[random] = temp;
+       }
+
+       return isAString ? result.join('') : result;
    }
 
    public selectUniqueRandomElements<T>(source: T[], picks: number): T[] {
