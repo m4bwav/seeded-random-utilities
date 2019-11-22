@@ -1,7 +1,77 @@
 # seeded-random-utilities
-Common random functions that are seedable with TypeScript support 
+Common random functions that are seedable written in TypeScript with TypeScript support.
+
+The [`rand-seed` npm package](https://www.npmjs.com/package/rand-seed) provides a random number generator similar to Math.random except with seeding.  This package uses `rand-seed` to provide random numbers, but also implements some common easy-to-use random utilties.
+
+## Installation
+This package is available through _npm_:
+
+```
+npm install --save seeded-random-utilties
+```
+
+## Usage
+Either import directly
+
+```html
+<script src="path-to-seeded-random-utilties/seeded-random-utilties.js"></script>
+```
+
+or import in your own scripts using
+
+```javascript
+import SeededRandomUtilities from 'seeded-random-utilties';
+```
+
+Then simply create a new instance with an (optional) seed:
+
+```javascript
+const rand = new SeededRandomUtilities('1234');
+
+rand.getRandomBool(); // Generate a new random number
+```
+
+If no seed is specified the call to `rand.random()` will simply be forwarded to `Math.random()`. So it won't operate in a repeatable seeded fashion if no seed is supplied.
+
+```javascript
+// Create a new random number generator using the xoshiro128** algorithm
+const rand = new SeededRandomUtilities('1234', PRNG.xoshiro128ss);
+```
+
+An interface is provided for the main random class, `ISeededRandomUtilities`.
+
+## Example
+A simple example is included. This may be run with _node_: `node sample/index.js`
+
+## API
+
+| Method                        | Description  |
+|:------------------------------|:-------------|
+| random(): number, getRandom(): number         | Generate a random integer.  |
+| getRandomIntegar(max: number, min = zero): number      | Generate a random integer.  |
+| getRandomArbitrary(max: number, min = zero): number          | Generate a random arbitary.  |
+| getRandomIntInclusive(max: number, min = zero): number  | Generate a random max inclusive integer.  | 
+| getRandomBool(): boolean    | Generate a random boolean (true/false). |
+| getRandomChar(): string                | Generate a random character. |
+|selectRandomElement<T>(source: T[]): T||Selects a random element out of the provided array|
+|selectUniqueRandomElements<T>(source: T[], picks: number): T[]|Select a number of random unique elments in a provided array|
+|shuffle<T>(array: T[], copy?: boolean): T[]|string| Randomly shuffle a provided array|
+|chooseBooleanRandomlyWithProbability(
+    itemCount: number,
+    picks?: number
+  ): boolean| Choose a number of boolean randomly with the provide percentage|
+|generateRandomArrayOfUniqueIntegers(
+    amount: number,
+    maxValue: number
+  ): number[]| Choose a list of unique integers out of a list of consecutive integers|
 
 
+
+## Contributing
+
+Pull requests and stars are highly welcome.
+
+For bugs and feature requests, please [create an issue](https://github.com/m4bwav/seeded-random-utilities/issues/new).
 
 ## Motivations
 In a recent project I was working on I needed the use of a seeded random number generator, preferably written in TypeScript. I found [rand-seed](https://www.npmjs.com/package/rand-seed), but while it provided the basic engine to run randomization it didn't have any implementation for picking unique numbers out of a set or really anything other than the root output similar to Math.random().  I had been waiting for an excuse to make a TypeScript style npm package, in order to provide tangible proof of my understanding of TypeScript.   So this seemed like the perfect excuse to attempt to fill a narrow niche with a package that had a set of random utilties as well as one that was seeded and in TypeScript.
