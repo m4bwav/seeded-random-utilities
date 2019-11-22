@@ -56,14 +56,8 @@ A simple example is included. This may be run with _node_: `node sample/index.js
 |selectRandomElement<T>(source: T[]): T||Selects a random element out of the provided array|
 |selectUniqueRandomElements<T>(source: T[], picks: number): T[]|Select a number of random unique elments in a provided array|
 |shuffle<T>(array: T[], copy?: boolean): T[]|string| Randomly shuffle a provided array|
-|chooseBooleanRandomlyWithProbability(
-    itemCount: number,
-    picks?: number
-  ): boolean| Choose a number of boolean randomly with the provide percentage|
-|generateRandomArrayOfUniqueIntegers(
-    amount: number,
-    maxValue: number
-  ): number[]| Choose a list of unique integers out of a list of consecutive integers|
+|chooseBooleanRandomlyWithProbability(itemCount: number, picks?: number): boolean| Choose a number of boolean randomly with the provide percentage|
+|generateRandomArrayOfUniqueIntegers(amount: number, maxValue: number): number[]| Choose a list of unique integers out of a list of consecutive integers|
 
 
 
