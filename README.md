@@ -43,6 +43,8 @@ An interface is provided for the main random class, `ISeededRandomUtilities`.
 ## Example
 A simple example is included. This may be run with _node_: `node sample/index.js`
 
+Another example that was used to verify that the package can be installed and used properly can be found in `sample/test-random-unique-integers-lists`.  A test package is in there that one can use to examine large sets of the output from `generateRandomArrayOfUniqueIntegers`.
+
 ## API
 
 | Method                        | Description  |
