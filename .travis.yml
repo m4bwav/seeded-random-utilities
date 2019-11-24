@@ -9,7 +9,7 @@ cache:
 before_install:
     - pip install --user codecov
 before_script:
-    - npm run lint --ext .ts ./
+    - npm run lint
 script:
     - npm test
 after_success:
