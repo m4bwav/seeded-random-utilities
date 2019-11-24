@@ -43,7 +43,7 @@ If no seed is specified the call to `rand.random()` will simply be forwarded to 
 const rand = new SeededRandomUtilities('1234', PRNG.xoshiro128ss);
 ```
 
-An interface is provided for the main random class, `ISeededRandomUtilities`.
+An interface is provided for the main random class, `RandomUtilities`.
 
 ## Example
 A simple example is included. This may be run with _node_: `node sample/index.js`
