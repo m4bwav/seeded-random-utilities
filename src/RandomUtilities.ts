@@ -1,4 +1,4 @@
-export interface ISeededRandomUtilities {
+interface RandomUtilities {
   random(): number;
   getRandom(): number;
   getRandomIntegar(max: number, min?: number): number;
@@ -18,3 +18,5 @@ export interface ISeededRandomUtilities {
     maxValue: number
   ): number[];
 }
+
+export default RandomUtilities;

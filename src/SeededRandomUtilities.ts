@@ -1,4 +1,4 @@
-import {ISeededRandomUtilities} from './ISeededRandomUtilities';
+import RandomUtilities from './RandomUtilities';
 import Rand, {PRNG} from 'rand-seed';
 
 export {PRNG};
@@ -7,7 +7,7 @@ const zero = 0;
 const one = 1;
 const fiftyPercent = 0.5;
 
-export default class SeededRandomUtilities implements ISeededRandomUtilities {
+export default class SeededRandomUtilities implements RandomUtilities {
 
    private randomGenerator: Rand;
    private readonly randomCharPool: string =

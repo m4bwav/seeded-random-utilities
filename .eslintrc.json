@@ -119,7 +119,7 @@
             "error",
             {"before": true, "after": true}
         ],
-        "linebreak-style": ["error", "windows"],
+        "linebreak-style": "off",//["error", "windows"],
         "lines-around-comment": [
             "error",
             {
