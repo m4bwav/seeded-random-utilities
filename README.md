@@ -1,5 +1,7 @@
 ![NPM Version](https://img.shields.io/npm/v/seeded-random-utilities.svg?branch=master)
 ![downloads](https://img.shields.io/npm/dt/seeded-random-utilities.svg)
+[![Build Status](https://travis-ci.com/m4bwav/seeded-random-utilities.svg?branch=master)](https://travis-ci.com/m4bwav/seeded-random-utilities)
+[![codecov](https://codecov.io/gh/m4bwav/seeded-random-utilities/branch/master/graph/badge.svg)](https://codecov.io/gh/m4bwav/seeded-random-utilities)
 [![tested with jest](https://img.shields.io/badge/tested_with-jest-99424f.svg)](https://github.com/facebook/jest)
 [![License](https://img.shields.io/npm/l/seeded-random-utilities.svg)](https://github.com/m4bwav/seeded-random-utilities/blob/master/LICENSE)
 
