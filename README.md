@@ -1,3 +1,8 @@
+![NPM Version](https://img.shields.io/npm/v/seeded-random-utilities.svg?branch=master)
+![downloads](https://img.shields.io/npm/dt/seeded-random-utilities.svg)
+[![tested with jest](https://img.shields.io/badge/tested_with-jest-99424f.svg)](https://github.com/facebook/jest)
+[![License](https://img.shields.io/npm/l/seeded-random-utilities.svg)](https://github.com/m4bwav/seeded-random-utilities/blob/master/LICENSE)
+
 # seeded-random-utilities
 Common random functions that are seedable written in TypeScript with TypeScript support.
 
