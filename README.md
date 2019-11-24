@@ -4,7 +4,7 @@
 [![codecov](https://codecov.io/gh/m4bwav/seeded-random-utilities/branch/master/graph/badge.svg)](https://codecov.io/gh/m4bwav/seeded-random-utilities)
 [![tested with jest](https://img.shields.io/badge/tested_with-jest-99424f.svg)](https://github.com/facebook/jest)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=m4bwav_seeded-random-utilities&metric=alert_status)](https://sonarcloud.io/dashboard?id=m4bwav_seeded-random-utilities)
-[![License](https://img.shields.io/npm/l/seeded-random-utilities.svg)](https://github.com/m4bwav/seeded-random-utilities/blob/master/LICENSE)
+[![License](https://img.shields.io/npm/l/seeded-random-utilities.svg)](https://github.com/m4bwav/seeded-random-utilities/blob/master/LICENSE) [![Join the chat at https://gitter.im/m4bwav/seeded-random-utilities](https://badges.gitter.im/m4bwav/seeded-random-utilities.svg)](https://gitter.im/m4bwav/seeded-random-utilities?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 # seeded-random-utilities
 Common random functions that are seedable written in TypeScript with TypeScript support.
