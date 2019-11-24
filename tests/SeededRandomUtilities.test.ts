@@ -8,10 +8,10 @@ const one = 1;
 const negativeOne = -1;
 describe('SeededRandomUtilities', (): void => {
     it('creates a new default instance', (): void => {
-        const utilties = new SeededRandomUtilities;
+        const utilities = new SeededRandomUtilities;
 
-        expect(utilties).toBeInstanceOf(SeededRandomUtilities);
-        expect(typeof utilties.random()).toBe('number');
+        expect(utilities).toBeInstanceOf(SeededRandomUtilities);
+        expect(typeof utilities.random()).toBe('number');
     });
 
     [
@@ -21,21 +21,21 @@ describe('SeededRandomUtilities', (): void => {
         PRNG.xoshiro128ss
     ].forEach((algo: PRNG | undefined): void => {
         it(`creates a new [${algo}] instance`, (): void => {
-            const utilties = new SeededRandomUtilities(someSeedValue, algo);
+            const utilities = new SeededRandomUtilities(someSeedValue, algo);
 
-            expect(utilties).toBeInstanceOf(SeededRandomUtilities);
-            expect(typeof utilties.random()).toBe('number');
+            expect(utilities).toBeInstanceOf(SeededRandomUtilities);
+            expect(typeof utilities.random()).toBe('number');
         });
     });
 
     it('can produce 3 unique numbers out of 10', (): void => {
-        const utilties = new SeededRandomUtilities(someSeedValue);
+        const utilities = new SeededRandomUtilities(someSeedValue);
 
 
         const numberOfPicks = 3;
-        expect(utilties).toBeInstanceOf(SeededRandomUtilities);
+        expect(utilities).toBeInstanceOf(SeededRandomUtilities);
         const maxValue = 9;
-        const randomArray = utilties
+        const randomArray = utilities
             .generateRandomArrayOfUniqueIntegers(numberOfPicks, maxValue);
 
         expect(randomArray.length).toBe(numberOfPicks);
@@ -49,89 +49,89 @@ describe('SeededRandomUtilities', (): void => {
     });
 
     it('will produce unique numbers until out of uniques', (): void => {
-        const utilties = new SeededRandomUtilities(someSeedValue);
+        const utilities = new SeededRandomUtilities(someSeedValue);
 
 
         const numberOfPicks = 10;
-        expect(utilties).toBeInstanceOf(SeededRandomUtilities);
+        expect(utilities).toBeInstanceOf(SeededRandomUtilities);
         const maxValue = 3;
-        const randomArray = utilties
+        const randomArray = utilities
             .generateRandomArrayOfUniqueIntegers(numberOfPicks, maxValue);
 
         expect(randomArray.length).toBe(maxValue + one);
     });
 
     it('throws an error on negative picks', (): void => {
-        const utilties = new SeededRandomUtilities(someSeedValue);
+        const utilities = new SeededRandomUtilities(someSeedValue);
 
 
         const numberOfPicks = -1;
-        expect(utilties).toBeInstanceOf(SeededRandomUtilities);
+        expect(utilities).toBeInstanceOf(SeededRandomUtilities);
         const maxValue = 3;
-        const attempt = (): number[] => utilties
+        const attempt = (): number[] => utilities
             .generateRandomArrayOfUniqueIntegers(numberOfPicks, maxValue);
 
         expect(attempt).toThrowError('cannot be negative');
     });
 
     it('can produce a random bool', (): void => {
-        const utilties = new SeededRandomUtilities(someSeedValue);
-        expect(utilties).toBeInstanceOf(SeededRandomUtilities);
+        const utilities = new SeededRandomUtilities(someSeedValue);
+        expect(utilities).toBeInstanceOf(SeededRandomUtilities);
 
-        const value = utilties.getRandomBool();
+        const value = utilities.getRandomBool();
 
         expect(typeof value).toBe('boolean');
     });
 
     it('can produce a random inclusive int', (): void => {
-        const utilties = new SeededRandomUtilities(someSeedValue);
-        expect(utilties).toBeInstanceOf(SeededRandomUtilities);
+        const utilities = new SeededRandomUtilities(someSeedValue);
+        expect(utilities).toBeInstanceOf(SeededRandomUtilities);
 
         const inclusiveMax = 10;
-        const value = utilties.getRandomIntInclusive(inclusiveMax);
+        const value = utilities.getRandomIntInclusive(inclusiveMax);
 
         expect(typeof value).toBe('number');
         expect(value).toBeLessThanOrEqual(inclusiveMax);
     });
 
     it('can produce a random value', (): void => {
-        const utilties = new SeededRandomUtilities(someSeedValue);
-        expect(utilties).toBeInstanceOf(SeededRandomUtilities);
+        const utilities = new SeededRandomUtilities(someSeedValue);
+        expect(utilities).toBeInstanceOf(SeededRandomUtilities);
 
-        const value = utilties.getRandom();
+        const value = utilities.getRandom();
         expect(typeof value).toBe('number');
 
         expect(value).toBeGreaterThanOrEqual(zero);
         expect(value).toBeLessThanOrEqual(one);
     });
     it('can produce a arbitary random', (): void => {
-        const utilties = new SeededRandomUtilities(someSeedValue);
-        expect(utilties).toBeInstanceOf(SeededRandomUtilities);
+        const utilities = new SeededRandomUtilities(someSeedValue);
+        expect(utilities).toBeInstanceOf(SeededRandomUtilities);
 
         const max = 10;
-        const value = utilties.getRandomArbitrary(max);
+        const value = utilities.getRandomArbitrary(max);
 
         expect(typeof value).toBe('number');
         expect(value).toBeLessThanOrEqual(max);
     });
 
     it('can produce a random char', (): void => {
-        const utilties = new SeededRandomUtilities(someSeedValue);
-        expect(utilties).toBeInstanceOf(SeededRandomUtilities);
+        const utilities = new SeededRandomUtilities(someSeedValue);
+        expect(utilities).toBeInstanceOf(SeededRandomUtilities);
 
-        const value = utilties.getRandomChar();
+        const value = utilities.getRandomChar();
 
         expect(typeof value).toBe('string');
         expect(value.length).toBe(one);
     });
 
     it('can produce a random element', (): void => {
-        const utilties = new SeededRandomUtilities(someSeedValue);
-        expect(utilties).toBeInstanceOf(SeededRandomUtilities);
+        const utilities = new SeededRandomUtilities(someSeedValue);
+        expect(utilities).toBeInstanceOf(SeededRandomUtilities);
 
         const limitedArray = ['A', 'B', 'C'];
 
-        const value = utilties.selectRandomElement(limitedArray);
+        const value = utilities.selectRandomElement(limitedArray);
 
         expect(typeof value).toBe('string');
         expect(limitedArray.indexOf(value)).not.toBe(negativeOne);
@@ -139,12 +139,12 @@ describe('SeededRandomUtilities', (): void => {
 
     it('returns undefined if there aren\'t any elements to select random from',
         (): void => {
-            const utilties = new SeededRandomUtilities(someSeedValue);
-            expect(utilties).toBeInstanceOf(SeededRandomUtilities);
+            const utilities = new SeededRandomUtilities(someSeedValue);
+            expect(utilities).toBeInstanceOf(SeededRandomUtilities);
 
             const limitedArray: string[] = [];
 
-            const result = utilties.selectRandomElement(limitedArray);
+            const result = utilities.selectRandomElement(limitedArray);
 
             expect(result).toBeUndefined();
         });
@@ -156,13 +156,13 @@ describe('SeededRandomUtilities', (): void => {
     ].forEach((algo: PRNG): void => {
         it(`reproduces the same random sequence for a given seed: [${algo}]`,
             (): void => {
-                let utilties = new SeededRandomUtilities(someSeedValue, algo);
+                let utilities = new SeededRandomUtilities(someSeedValue, algo);
                 const result1 = Array.from({length: 10},
-                    (): number => utilties.random());
+                    (): number => utilities.random());
 
-                utilties = new SeededRandomUtilities(someSeedValue, algo);
+                utilities = new SeededRandomUtilities(someSeedValue, algo);
                 const result2 = Array.from({length: 10},
-                    (): number => utilties.random());
+                    (): number => utilities.random());
 
                 expect(result1).toEqual(result2);
             });
@@ -178,14 +178,14 @@ describe('SeededRandomUtilities', (): void => {
 
         it(testName, (): void => {
             let rand = new Rand(someSeedValue, algo);
-            let utilties = new SeededRandomUtilities(rand);
+            let utilities = new SeededRandomUtilities(rand);
             const result1 = Array
-                .from({length: 10}, (): number => utilties.random());
+                .from({length: 10}, (): number => utilities.random());
 
             rand = new Rand(someSeedValue, algo);
-            utilties = new SeededRandomUtilities(rand);
+            utilities = new SeededRandomUtilities(rand);
             const result2 = Array
-                .from({length: 10}, (): number => utilties.random());
+                .from({length: 10}, (): number => utilities.random());
 
             expect(result1).toEqual(result2);
         });
