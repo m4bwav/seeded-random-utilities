@@ -28,14 +28,7 @@ Ship `seeded-random-utilities` 2.0.0 to npm with these properties:
 
 ## Status
 
-2026-09-25: Stages 0, 1 and 2 are done; Stage 3 waits for Mark to add the npm trusted publisher.
-
-- **Stage 0.** The survey, the baseline and the golden capture are done; Mark accepted every decision.
-- **Stage 1.** The rewrite is merged. After an independent review, 1,223 tests pass on Node 20, 22, 24 and 26, plus Bun and Deno in CI.
-- **Stage 2.** Pull request #17 was squash-merged as 3ed7bb2. The Dependabot alerts are 0, and #5 to #16 are closed. The codecov webhook is deleted, the settings are applied, and secret scanning and push protection are on.
-- **Nothing is published:** npm still has only 1.1.4.
-
-Update this section as stages land.
+2026-09-25: done. seeded-random-utilities 2.0.0 is on npm as `latest`, approved by Mark and verified from the registry on every OS, Node line, Bun and Deno; `next` stays on 2.0.0-beta.1. Stages 0 to 3 are complete and Stage 4's wrap-up items are done; what remains is standing work (HANDOFF.md).
 
 ## Where it stands (survey 2026-09-25)
 
@@ -339,14 +332,14 @@ Evidence is in the log.
 ### Stage 3: release 2.0.0
 
 - [x] Mark, once, in the browser, following get-title-at-url's trusted-publishing solution (ai-docs/solutions/2026-09-25-publish-to-npm-from-github-actions-without-a-stored-token-th.md there): on npmjs.com, open seeded-random-utilities, then Settings, then Trusted publishing, and add a GitHub Actions publisher. The fields are: user `m4bwav`, repository `seeded-random-utilities`, workflow `release.yml`, environment blank, "Allow npm publish" unticked. Check that the package's publishing access requires 2FA. (2026-09-25: Mark added it and said "I updated the npm package settings, continue".)
-- [ ] Agent, only after Mark confirms: run `npm version 2.0.0-beta.1` on `master`, then `git push --follow-tags`. `release.yml` stages the version under `next`. **Stop** while Mark approves. Then verify: `npm view seeded-random-utilities dist-tags` (`latest` still 1.1.4), `verify-published.yml` with `2.0.0-beta.1`, and `npm audit signatures` in a temporary project.
-- [ ] Agent: date the changelog, run `npm version 2.0.0`, push, and watch the run. **Stop** while Mark approves. Then verify from the registry: `verify-published.yml` with `2.0.0`, the GitHub Release `v2.0.0` and provenance.
+- [x] Agent, only after Mark confirms: run `npm version 2.0.0-beta.1` on `master`, then `git push --follow-tags`. `release.yml` stages the version under `next`. **Stop** while Mark approves. Then verify: `npm view seeded-random-utilities dist-tags` (`latest` still 1.1.4), `verify-published.yml` with `2.0.0-beta.1`, and `npm audit signatures` in a temporary project. (2026-09-25: 11aff9f, release run 36200979437, staged under next with stage id f59d0341; Mark approved; verify-published run 36201514545 green in all 15 jobs; dist-tags latest 1.1.4, next 2.0.0-beta.1.)
+- [x] Agent: date the changelog, run `npm version 2.0.0`, push, and watch the run. **Stop** while Mark approves. Then verify from the registry: `verify-published.yml` with `2.0.0`, the GitHub Release `v2.0.0` and provenance. (2026-09-25: eaefe88 and 9722f06, release run 36201644420, staged under latest with stage id 9e38f4ec; Mark approved; dist-tags latest 2.0.0 with SLSA provenance v1; verify-published run 36202020534 green; GitHub Release v2.0.0.)
 
 ### Stage 4: wrap-up and standing work
 
-- [ ] Rewrite HANDOFF.md around the standing work.
-- [ ] Add this package's row to package-modernization/inventory.md.
-- [ ] Update the playbook with what differed from get-title-at-url. Collected so far (add to this list as the run goes):
+- [x] Rewrite HANDOFF.md around the standing work. (2026-09-25.)
+- [x] Add this package's row to package-modernization/inventory.md. (2026-09-25: the row says done; the suggested order now points the next run at the skill.)
+- [x] Update the playbook with what differed from get-title-at-url. Collected so far (add to this list as the run goes): (2026-09-25: applied to the playbook, marked "(2nd run)" in sections 1, 2, 3, 4, 8 and 10; the review prompt is saved as package-modernization/prompts/review-subagent.md.)
   - **Stage 0 order.** Golden fixtures, AGENTS.md, CLAUDE.md and the Copilot pointer were committed to `master` in Stage 0 (the kickoff asked for fixtures before any code change). get-title-at-url put the three instruction files on its branch in Stage 1.
   - **Survey facts can be wrong.** The kickoff said `''` is no seed; the golden capture's quirks section proved otherwise. The playbook's survey should say: record the odd inputs (empty string, numbers, null, unknown options) in the capture and check every survey claim against it.
   - **Caret ranges.** A caret range in the old package (`^0.1.2`) installs a newer version on a fresh install (0.1.5) than the old lockfile pins. Capture golden outputs from a fresh `npm install` of the published version, and check every version the range covers for behaviour changes.
@@ -361,7 +354,7 @@ Evidence is in the log.
   - **A package without a CLI** needs verify-published to import the package in a fresh project, instead of running a bin. `npm audit signatures` over the whole dev tree passed (493 packages), so it can join ci.yml.
   - **Nested quoting through Bash** (a node script inside a double-quoted bash string with backticks and dollar signs) failed with "bad substitution". Use the Edit tool for multi-line YAML or code edits.
   - **The golden test first** paid off: the first build passed all 322 cases, which then pinned every later refactor, including the ones `xo --fix` made.
-- [ ] Tell Mark whether the playbook is ready to become the `npm-modernize` evergreen skill (not built in this run).
+- [x] Tell Mark whether the playbook is ready to become the `npm-modernize` evergreen skill (not built in this run). (2026-09-25: ready to build, before the third run; see the playbook's section 10.)
 - [ ] Standing work: merge Dependabot pull requests when CI is green. 3.0.0 removes the deprecated names; plan it together with the Node floor moving to 24 after Node 22 reaches end of life (2027-04-30).
 
 ## Test strategy: every artifact, every runtime, and the sequences themselves
