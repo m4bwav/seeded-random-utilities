@@ -333,7 +333,17 @@ get-title-at-url's library entry, without the CLI entry and without the version 
 
 - [ ] Rewrite HANDOFF.md around the standing work.
 - [ ] Add this package's row to package-modernization/inventory.md.
-- [ ] Update the playbook with what differed from get-title-at-url.
+- [ ] Update the playbook with what differed from get-title-at-url. Collected so far (add to this list as the run goes):
+  - **Stage 0 order.** Golden fixtures, AGENTS.md, CLAUDE.md and the Copilot pointer were committed to `master` in Stage 0 (the kickoff asked for fixtures before any code change). get-title-at-url put the three instruction files on its branch in Stage 1.
+  - **Survey facts can be wrong.** The kickoff said `''` is no seed; the golden capture's quirks section proved otherwise. The playbook's survey should say: record the odd inputs (empty string, numbers, null, unknown options) in the capture and check every survey claim against it.
+  - **Caret ranges.** A caret range in the old package (`^0.1.2`) installs a newer version on a fresh install (0.1.5) than the old lockfile pins. Capture golden outputs from a fresh `npm install` of the published version, and check every version the range covers for behaviour changes.
+  - **Kickoff wishes can conflict.** "Bounded by the amount" and "bit for bit" cannot both hold for `generateRandomArrayOfUniqueIntegers` (D6). A prompt should test each requested fix against the determinism promise before asking for both.
+  - **Windows trap for old scripts.** 2019-era npm scripts that call `./node_modules/.bin/…` fail under cmd.exe; run the baseline with `--script-shell` pointing at Git Bash.
+  - **Everlast lint traps.**
+    - The privacy scan reads any at-sign word as a social handle: JSDoc's deprecated tag, CLAUDE.md's import line, npm scopes. It refuses a HANDOFF that contains one.
+    - Decisions need a `## Reasons` heading.
+    - Paths to files that do not exist yet must be written without backticks.
+  - **Working directory.** A `cd` inside a Bash call moves the session's primary working directory for every later call; use absolute paths and `git -C`.
 - [ ] Tell Mark whether the playbook is ready to become the `npm-modernize` evergreen skill (not built in this run).
 - [ ] Standing work: merge Dependabot pull requests when CI is green. 3.0.0 removes the deprecated names; plan it together with the Node floor moving to 24 after Node 22 reaches end of life (2027-04-30).
 

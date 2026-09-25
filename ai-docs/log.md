@@ -15,3 +15,4 @@ Append-only. One line per operation: `## [YYYY-MM-DD] op | title` where op is on
 ## [2026-09-25] index | rebuilt (3 entries)
 ## [2026-09-25] handoff | 41 lines
 ## [2026-09-25] index | rebuilt (3 entries)
+## [2026-09-25] update | plan: Stage 4 now collects the playbook differences found so far (Stage 0 commit order, survey facts checked against the capture's quirks, caret ranges, conflicting kickoff wishes, old npm scripts under cmd.exe, everlast lint traps, cd moves the working directory); committed and pushed Stage 0 as 784c45d on master
