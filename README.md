@@ -1,93 +1,166 @@
-![NPM Version](https://img.shields.io/npm/v/seeded-random-utilities.svg?branch=master)
-![downloads](https://img.shields.io/npm/dt/seeded-random-utilities.svg)
-[![Build Status](https://travis-ci.com/m4bwav/seeded-random-utilities.svg?branch=master)](https://travis-ci.com/m4bwav/seeded-random-utilities)
-![David](https://img.shields.io/david/m4bwav/seeded-random-utilities)
-![David](https://img.shields.io/david/dev/m4bwav/seeded-random-utilities)
-[![codecov](https://codecov.io/gh/m4bwav/seeded-random-utilities/branch/master/graph/badge.svg)](https://codecov.io/gh/m4bwav/seeded-random-utilities)
-[![tested with jest](https://img.shields.io/badge/tested_with-jest-99424f.svg)](https://github.com/facebook/jest)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=m4bwav_seeded-random-utilities&metric=alert_status)](https://sonarcloud.io/dashboard?id=m4bwav_seeded-random-utilities)
-[![License](https://img.shields.io/npm/l/seeded-random-utilities.svg)](https://github.com/m4bwav/seeded-random-utilities/blob/master/LICENSE) [![Join the chat at https://gitter.im/m4bwav/seeded-random-utilities](https://badges.gitter.im/m4bwav/seeded-random-utilities.svg)](https://gitter.im/m4bwav/seeded-random-utilities?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
 # seeded-random-utilities
-Common random functions that are seedable written in TypeScript with TypeScript support.
 
-The [`rand-seed` npm package](https://www.npmjs.com/package/rand-seed) provides a random number generator similar to Math.random except with seeding.  This package uses `rand-seed` to provide random numbers, but also implements some common easy-to-use random utilities.
+[![npm version](https://img.shields.io/npm/v/seeded-random-utilities.svg)](https://www.npmjs.com/package/seeded-random-utilities)
+[![CI](https://github.com/m4bwav/seeded-random-utilities/actions/workflows/ci.yml/badge.svg)](https://github.com/m4bwav/seeded-random-utilities/actions/workflows/ci.yml)
+[![npm downloads](https://img.shields.io/npm/dm/seeded-random-utilities.svg)](https://www.npmjs.com/package/seeded-random-utilities)
 
-## Installation
-This package is available through _npm_:
+Seeded random numbers, integers, booleans, characters, strings, picks, weighted picks and shuffles. **The same seed gives the same sequence** on every runtime and in every version since 1.0: save games, generated levels, test fixtures and simulations come out the same every time.
 
-```
-npm install --save seeded-random-utilities
+- Five small, fast generators: sfc32 (the default), mulberry32 and xoshiro128**, plus reference versions of the last two.
+- TypeScript types, ES module and CommonJS builds, no dependencies.
+- Node 20 and later, browsers, Bun, Deno and workers: the library uses nothing but plain JavaScript.
+
+## Install
+
+```sh
+npm install seeded-random-utilities
 ```
 
 ## Usage
-Either import directly
+
+```js
+import SeededRandomUtilities from 'seeded-random-utilities';
+
+const rng = new SeededRandomUtilities('level-1');
+
+rng.random();                        // a number in [0, 1)
+rng.getRandomInteger(1, 7);          // 1 to 6: a die roll
+rng.getRandomFloat(-1, 1);           // a number in [-1, 1)
+rng.getRandomBool(0.25);             // true one time in four
+rng.selectRandomElement(['a', 'b', 'c']);
+rng.selectWeightedRandomElement(['common', 'rare'], [9, 1]);
+rng.getUniqueRandomIntegers(3, 10);  // three different integers from 0 to 9
+rng.shuffle([1, 2, 3, 4]);           // a shuffled copy
+rng.getRandomString(8);              // 8 characters from a pool of 81
+```
+
+Run it twice and every line returns the same thing both times. Change the seed and everything changes.
+
+**CommonJS:**
+
+```js
+const {SeededRandomUtilities, PRNG} = require('seeded-random-utilities');
+// require('seeded-random-utilities').default still works, as it did in 1.x.
+```
+
+**Deno:** `import SeededRandomUtilities from 'npm:seeded-random-utilities';`
+
+**Bun:** `bun add seeded-random-utilities`, then import as above.
+
+**Browsers:** through any bundler, or as an ES module from a CDN that serves npm packages:
 
 ```html
-<script src="path-to-seeded-random-utilities/seeded-random-utilities.js"></script>
+<script type="module">
+  import SeededRandomUtilities from 'https://cdn.jsdelivr.net/npm/seeded-random-utilities@2/+esm';
+  console.log(new SeededRandomUtilities('1234').random());
+</script>
 ```
 
-or import in your own scripts using
+## Seeds
 
-```javascript
-import SeededRandomUtilities from 'seeded-random-utilities';
+A seed is a string or a finite number: `42` and `'42'` give the same sequence. Without a seed (undefined or null) the numbers come from `Math.random()`, so they are not repeatable.
+
+```js
+new SeededRandomUtilities('player-7');   // a string
+new SeededRandomUtilities(20260925);     // a number
+new SeededRandomUtilities();             // Math.random: different every run
 ```
 
-Then simply create a new instance with an (optional) seed:
+**Independent streams.** Give each part of a program its own generator with a seed derived from the main one. Then drawing more numbers in one part never changes another:
 
-```javascript
-const rand = new SeededRandomUtilities('1234');
-
-rand.getRandomBool(); // Generate a new random number
+```js
+const world = 'world-42';
+const terrain = new SeededRandomUtilities(`${world}:terrain`);
+const loot = new SeededRandomUtilities(`${world}:loot`);
 ```
 
-If no seed is specified the call to `rand.random()` will simply be forwarded to `Math.random()`. So it won't operate in a repeatable seeded fashion if no seed is supplied.
+**Save and resume.** `getState()` returns plain data. `fromState()` continues from exactly that point, in the same process or another:
 
-```javascript
-// Create a new random number generator using the xoshiro128** algorithm
-const rand = new SeededRandomUtilities('1234', PRNG.xoshiro128ss);
+```js
+const saved = JSON.stringify(rng.getState());
+// … later, anywhere …
+const resumed = SeededRandomUtilities.fromState(JSON.parse(saved));
 ```
 
-An interface is provided for the main random class, `RandomUtilities`.
+**Other libraries.** Many libraries accept a `Math.random`-style function. `rng.random` is bound to its instance, so pass it directly:
 
-## Example
-A simple example is included. This may be run with _node_: `node sample/index.js`
+```js
+someLibrary({random: rng.random});
+Array.from({length: 5}, rng.random);  // five numbers
+```
 
-Another example that was used to verify that the package can be installed and used properly can be found in `sample/test-random-unique-integers-lists`.  A test package is in there that one can use to examine large sets of the output from `generateRandomArrayOfUniqueIntegers`.
+## Algorithms
+
+Pass the algorithm as the second argument: `new SeededRandomUtilities('seed', PRNG.mulberry32)`, or just the string `'mulberry32'`.
+
+| `PRNG` | Algorithm | Notes |
+|---|---|---|
+| `sfc32` (default) | sfc32, Chris Doty-Humphrey's Small Fast Counting generator from PractRand | 128-bit state. The recommended choice |
+| `mulberry32` | Mulberry32, Tommy Ettinger | 32-bit state, as in 1.x. Its counter is never wrapped, so after about 4.9 million draws its low bits round away and quality slowly drops |
+| `mulberry32Reference` | Mulberry32 with the reference 32-bit counter | The same numbers as `mulberry32` for the first 4.9 million draws, correct after |
+| `xoshiro128ss` | xoshiro128** version 1.0, David Blackman and Sebastiano Vigna | As in 1.x. Version 1.0 scrambled the wrong state word, which the authors fixed in 1.1 |
+| `xoshiro128ssReference` | xoshiro128** 1.1, the authors' reference | The same numbers as rand-seed 2.0 and later give for `xoshiro128ss` |
+
+The older variants stay so that seeds stored with 1.x keep producing the same numbers. For new work, use `sfc32`.
 
 ## API
 
-| Method                        | Description  |
-|:------------------------------|:-------------|
-| random(): number, getRandom(): number         | Generate a random integer.  |
-| getRandomIntegar(max: number, min = zero): number      | Generate a random integer.  |
-| getRandomArbitrary(max: number, min = zero): number          | Generate a random arbitary.  |
-| getRandomIntInclusive(max: number, min = zero): number  | Generate a random max inclusive integer.  | 
-| getRandomBool(): boolean    | Generate a random boolean (true/false). |
-| getRandomChar(): string                | Generate a random character. |
-|selectRandomElement<T>(source: T[]): T||Selects a random element out of the provided array|
-|selectUniqueRandomElements<T>(source: T[], picks: number): T[]|Select a number of random unique elments in a provided array|
-|shuffle<T>(array: T[], copy?: boolean): T[]|string| Randomly shuffle a provided array|
-|chooseBooleanRandomlyWithProbability(itemCount: number, picks?: number): boolean| Choose a number of boolean randomly with the provide percentage|
-|generateRandomArrayOfUniqueIntegers(amount: number, maxValue: number): number[]| Choose a list of unique integers out of a list of consecutive integers|
+| Method | Returns |
+|---|---|
+| `random()` | A number in [0, 1). `getRandom()` is the same |
+| `getRandomInteger(max)`, `getRandomInteger(min, max)` | An integer in [0, max) or [min, max) |
+| `getRandomIntegerInclusive(max)`, `getRandomIntegerInclusive(min, max)` | An integer in [0, max] or [min, max] |
+| `getRandomFloat(max)`, `getRandomFloat(min, max)` | A number in [0, max) or [min, max) |
+| `getRandomBool(probability = 0.5)` | `true` with the given probability |
+| `getRandomChar(pool?)` | One character (code point) from `pool`, by default 81 letters, digits and symbols |
+| `getRandomString(length, pool?)` | `length` characters, each drawn as `getRandomChar(pool)` draws it |
+| `selectRandomElement(array)` | One element, or `undefined` for an empty array |
+| `selectUniqueRandomElements(array, picks)` | `picks` different elements, in their original order |
+| `selectWeightedRandomElement(array, weights)` | One element, chosen with probability weight / sum of the weights |
+| `getUniqueRandomIntegers(amount, max)`, `getUniqueRandomIntegers(amount, min, max)` | `amount` different integers from [0, max) or [min, max), in random order |
+| `shuffle(array, copy = true)` | The elements in random order: a new array, or the same array shuffled in place when `copy` is `false` |
+| `shuffle(string)` | The characters of a string in random order |
+| `chooseBooleanRandomlyWithProbability(itemCount, picks = 1)` | `true` with probability picks / itemCount |
+| `getState()` | The generator's position, for `SeededRandomUtilities.fromState(state)` |
 
+Bad arguments throw `TypeError` or `RangeError` with a message that names the method: an empty or reversed range, a probability outside [0, 1], an empty pool, or more unique integers than the range holds.
 
+Also exported: `PRNG`; `Rand`, rand-seed 0.1's class with the same numbers (`new Rand(seed, prng).next()`); and the types `RandomUtilities`, `Seed`, `RandomSource` and `GeneratorState`.
 
-## Contributing
+## Same seed, same sequence
 
-Pull requests and stars are highly welcome.
+Version 2 returns exactly what 1.1.4 returned for every call 1.1.4 handled, with every algorithm. The test suite checks 322 cases recorded from the published 1.1.4, on Node 20, 22, 24 and 26, Bun and Deno. Every number comes from arithmetic that JavaScript defines exactly, so every engine agrees.
 
-For bugs and feature requests, please [create an issue](https://github.com/m4bwav/seeded-random-utilities/issues/new).
+The three exceptions are inputs that 1.1.4 handled badly:
 
-## Motivations
-In a recent project I was working on I needed the use of a seeded random number generator, preferably written in TypeScript. I found [rand-seed](https://www.npmjs.com/package/rand-seed), but while it provided the basic engine to run randomization it didn't have any implementation for picking unique numbers out of a set or really anything other than the root output similar to Math.random().  I had been waiting for an excuse to make a TypeScript style npm package, in order to provide tangible proof of my understanding of TypeScript.   So this seemed like the perfect excuse to attempt to fill a narrow niche with a package that had a set of random utilities as well as one that was seeded and in TypeScript.
-I started reading different TypeScript npm package tutorials and finally settled on using [How to Create and Publish an NPM module in TypeScript](https://codeburst.io/https-chidume-nnamdi-com-npm-module-in-typescript-12b3b22f0724)
-I first attemptted implementing simple utilities like generating a random integer.   For and more, I kept seeing people point to the [MDN article on Math.Random], and noticed that it some nice basic implementations of many common random utilities.  So I adapted most of those utilities to the new seeded TypeScript package I was buliding.  Then I noticed the [random-utility - npm](https://www.npmjs.com/package/random-utility), while I was getting close to have creating a unique element picking algorithm.  I adapted some of the easy to adapte to seeded TypeScript versions.
-Finally I noticed more and more I liked the TypeScript project setup in rand-seed and ended up copying more and more of it i into my project.  It gave me chance to work on rollup which I hadn't gotten into yet.  Thanks to all mentioned and those unmentioned that I don't know of.
+- `shuffle` on a string splits it by character, where 1.1.4 cut emoji and other characters outside the Basic Multilingual Plane in half. Strings without such characters shuffle exactly as before.
+- A number used as a seed is hashed as its string. In 1.1.4 every number gave the same sequence as the empty string.
+- An unknown algorithm name throws `TypeError`, where 1.1.4 silently fell back to `Math.random()`.
 
+## Migrating from 1.x
 
-## Links
-* "[rand-seed - npm](https://www.npmjs.com/package/rand-seed)" - Provides the seeded random implementation powering the utilities.  Also directly used a lot of the TypeScript setup and project design from here, blending it partly with the following tutorial link and other random utilities.
-* "[How to Create and Publish an NPM module in TypeScript](https://codeburst.io/https-chidume-nnamdi-com-npm-module-in-typescript-12b3b22f0724)" - One of the best tutorials on how to publish a TypeScript package that is usefulable in both JavaScript and TypeScript.
-* "[Math.random() - JavaScript | MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random)" - This MDN web doc provided the inspriation and logic behind many of the utilities.  They were adpated to both seeding and into TypeScript.
-* "[random-utility - npm](https://www.npmjs.com/package/random-utility)" - I created seeded versions of a few of these utitlities.  It wasn't a straight rip, more just inspiration. 
+| 1.x | 2.x |
+|---|---|
+| `getRandomIntegar(max, min)` | `getRandomInteger(min, max)`. The same numbers; note the order |
+| `getRandomArbitrary(max, min)` | `getRandomFloat(min, max)`. The same numbers |
+| `getRandomIntInclusive(max, min)` | `getRandomIntegerInclusive(min, max)`. The same numbers |
+| `generateRandomArrayOfUniqueIntegers(amount, maxValue)` | `getUniqueRandomIntegers(amount, 0, maxValue + 1)`. It takes time and memory in proportion to the amount instead of the range, but draws a different sequence |
+| `require('seeded-random-utilities').default` | Still works; `.SeededRandomUtilities` too |
+| `PRNG` from rand-seed, a TypeScript enum | `PRNG` from this package: an object and a string union type. `PRNG.sfc32` still works, and so does `'sfc32'` |
+
+The four old methods still work, with 1.1.4's behaviour for every input. They are deprecated, so editors strike them through, and 3.0.0 removes them. Node 18 and older are no longer supported. Import the package root only: deep paths into `dist/` changed. The details are in the [changelog](CHANGELOG.md).
+
+## Limits
+
+- **Not for security.** A seed, or a few outputs, reveal the whole sequence. Use `crypto.getRandomValues()` for passwords, tokens, keys and anything with money on it.
+- Integer methods draw one 32-bit number, so a range may hold at most 2^32 integers (wider ranges throw). A range of n integers is uniform to within n / 2^32, which is less than one in a million below 4,294 integers.
+- `selectRandomElement` and `selectUniqueRandomElements` walk the array as 1.x did, drawing up to one number per element. `selectWeightedRandomElement` draws once.
+- The deprecated `generateRandomArrayOfUniqueIntegers` builds and shuffles the whole range, so a large `maxValue` costs time and memory; `getUniqueRandomIntegers` does not.
+
+## Credits
+
+The generators are ported from [rand-seed](https://github.com/michaeldzjap/rand-seed) 0.1.5 (MIT, Michael Dzjaparidze), which this package depended on until 2.0.0. rand-seed took them from [bryc's public-domain JavaScript ports](https://github.com/bryc/code/blob/master/jshash/PRNGs.md) of the algorithms by Chris Doty-Humphrey (sfc32), Tommy Ettinger (mulberry32) and David Blackman and Sebastiano Vigna (xoshiro128**). The range helpers began as the examples on MDN's `Math.random()` page.
+
+## License
+
+MIT © Mark Rogers. [LICENSE](LICENSE) includes rand-seed's notice. Security reports: see [SECURITY.md](SECURITY.md).
