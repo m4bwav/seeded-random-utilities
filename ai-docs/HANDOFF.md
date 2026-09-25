@@ -1,36 +1,37 @@
 # Handoff
 
-Updated 2026-09-25: 2.0.0-beta.1 is approved and verified, and 2.0.0 is staged on npm waiting for Mark's approval. Read this first, then [log.md](log.md) for evidence.
+Updated 2026-09-25: seeded-random-utilities 2.0.0 is released and verified, and the modernization plan is done. What remains is standing work. Read [log.md](log.md) for evidence.
 
 ## Current state
 
-- **master.** At 9722f06 ("2.0.0", tag v2.0.0), after eaefe88 (the CHANGELOG heading dated 2026-09-25). The rewrite is pull request #17, 3ed7bb2.
-- **2.0.0-beta.1.** Approved by Mark and verified: verify-published run 36201514545 was green in all 15 jobs. `npm audit signatures` verified the attestation, and require and import give 1.1.4's first number.
-- **2.0.0.** Release run 36201644420 is green. It staged seeded-random-utilities@2.0.0 with tag `latest` (stage id 9e38f4ec-bdcd-4947-8816-6925b4552883, provenance at sigstore log index 2962768304). The GitHub Release v2.0.0 exists and is not a prerelease.
-- **npm dist-tags now:** `latest` 1.1.4, `next` 2.0.0-beta.1. `latest` becomes 2.0.0 when Mark approves.
-- **The codecov token** will not be revoked, by Mark's decision (see the log).
+- **npm.** `latest` is 2.0.0, approved by Mark on 2026-09-25, with SLSA provenance and no dependencies; `next` is 2.0.0-beta.1. GitHub Releases v2.0.0 and v2.0.0-beta.1 (a prerelease) exist. master holds the release, and CI is green on every push.
+- **Verified from the registry.** verify-published run 36202020534 was green in all 15 jobs (Node 20 to 26 on Linux, Windows and macOS, Bun, Deno). Locally, `npm audit signatures` verified the signature and the attestation, and require and import give 1.1.4's numbers.
+- **GitHub:**
+  - 0 Dependabot alerts, no open pull requests or issues, only `master`, 0 webhooks.
+  - Ruleset 24022136 protects `master`.
+  - Secret scanning, push protection and private vulnerability reporting are on, and workflow permissions are read-only.
+- **The contract.** `test/golden/1.1.4.json` holds 322 cases from the published 1.1.4, and `test/golden/2.0.0.json` holds 150 cases pinning the methods new in 2.0.0. Never regenerate either one.
+- **Records.** The plan, now a record: [plans/2026-09-25-modernization-and-v2-release.md](plans/2026-09-25-modernization-and-v2-release.md). The release ritual is in AGENTS.md; the npmjs.com trusted-publisher fields are in get-title-at-url's solution entry on trusted publishing.
+- **The codecov token of 2019** is not revoked, by Mark's decision; see the log.
 
-## Waiting for Mark
+## Standing work
 
-Approve 2.0.0 on npmjs.com (the package's Staged Packages tab, with 2FA).
+1. **Dependabot** opens npm (minor and patch grouped) and GitHub Actions pull requests on Mondays. Merge when `ci` is green, and read the release notes for a major. Two majors are held in `.github/dependabot.yml`: TypeScript 7, until xo supports it, and the Node type definitions, which are bumped by hand.
+2. **A patch or minor** follows the ritual in AGENTS.md; no beta is needed unless `release.yml` or the npm setup changed. verify-published already passes `--minimum-dependency-age=0` to Deno for versions under 24 hours old.
+3. **Never change a seeded sequence.** A fix goes under a new name, with a decision entry and a changelog line (AGENTS.md).
+4. **3.0.0**, not before Node 22 reaches end of life on 2027-04-30:
+   - Remove the deprecated `getRandomIntegar`, `getRandomArbitrary`, `getRandomIntInclusive`, `generateRandomArrayOfUniqueIntegers` and the static `default`.
+   - Raise `engines` to Node 24, as get-title-at-url's v4 plan does.
+5. **`next` stays on 2.0.0-beta.1.** Removing the tag needs an npm login with 2FA, and a 3.0.0 beta will move it anyway.
+6. **Optional, Mark:** revoke Codecov under Authorized OAuth Apps at github.com/settings/applications, and remove any unused SonarCloud or Travis CI app.
+7. **Optional Stage 5, not planned:** JSR, or a seeded-random playground page on markdavidrogers.com.
 
 ## Next single action
 
-After the approval:
-
-1. Run `gh workflow run verify-published.yml -R m4bwav/seeded-random-utilities -f version=2.0.0`; all 15 jobs must pass.
-2. Check `npm view seeded-random-utilities dist-tags`: `latest` 2.0.0.
-3. Install it in a temp project and run `npm audit signatures`; check `npx -y -p seeded-random-utilities@2 node -e ...` if wanted.
-
-Then Stage 4, all in the plan:
-
-- Rewrite this file around the standing work: Dependabot, 3.0.0 removing the deprecated names with the Node 24 floor after 2027-04-30.
-- Update the inventory row (`D:\m4bwa\Claude\Projects\Ai\package-modernization\inventory.md`).
-- Mark the kickoff prompt done.
-- Apply the plan's collected "playbook differences" list to `D:\m4bwa\Claude\Projects\Ai\package-modernization\playbook.md`.
-- Tell Mark whether the playbook is ready to become the npm-modernize skill (playbook section 10); do not build it.
+Nothing is pending. Start from item 1 when Dependabot pull requests appear.
 
 ## Dead ends hit
 
-- The Bash tool loses backslashes and fails on nested quoting; use the Edit tool or a script file.
-- The everlast handoff refuses a body without `## Next single action`.
+- The Bash tool fails on nested quoting and drops the backslashes of Windows paths; use the Edit tool or a script file.
+- `xo --fix` rewrites code; stage first and read the diff it makes to `src/`.
+- The everlast lint reads at-sign words as handles, and the handoff needs a `## Next single action` section.
