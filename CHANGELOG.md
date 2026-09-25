@@ -2,7 +2,7 @@
 
 All notable changes to this package. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the package follows [Semantic Versioning](https://semver.org/).
 
-## [2.0.0] - Unreleased
+## [2.0.0] - 2026-09-25
 
 **Same seed, same sequence.** Every call that 1.1.4 handled returns exactly the same numbers in 2.0.0, for every algorithm and on every runtime; the tests check 322 cases recorded from the published 1.1.4. There are three exceptions, all inputs that 1.1.4 handled badly: `shuffle` on strings with characters outside the Basic Multilingual Plane (emoji), numbers used as seeds, and unknown algorithm names with a seed. A few rare call patterns also behave differently; they are listed under "Changed (breaking)".
 
