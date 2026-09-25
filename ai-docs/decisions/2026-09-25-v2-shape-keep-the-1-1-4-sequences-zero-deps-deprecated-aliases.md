@@ -11,7 +11,7 @@ summary: "read before changing the v2 design or any seeded behaviour: why 2.0.0 
 
 # Decision: v2 reproduces 1.1.4's sequences bit for bit, inlines the generators, and keeps every 1.1.4 name
 
-Date: 2026-09-25. Status: proposed. The plan proceeds on these choices unless Mark overrules one in the plan review; silence means they stand. Each point maps to a row of the plan's decisions table.
+Date: 2026-09-25. Status: accepted by Mark on 2026-09-25, every recommendation as written. Stage 1 added D2b under D2's rule: 1.1.4's mulberry32 counter is never wrapped and loses precision after about 4.9 million draws, so the stream stays exact under `mulberry32` and the correct algorithm is added as `PRNG.mulberry32Reference`. Each point maps to a row of the plan's decisions table.
 
 ## Context
 

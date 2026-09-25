@@ -98,6 +98,7 @@ Update this section as stages land.
 |---|---|---|---|---|
 | D1 | Determinism | 2.0.0 reproduces 1.1.4 bit for bit: every 1.1.4 method called with arguments 1.1.4 handled returns the same values for every algorithm, including how many numbers each method draws. `test/golden/1.1.4.json` (322 cases from the published 1.1.4) runs with strict equality against both builds on every Node line, Bun, Deno and the registry. The first line of the 2.0.0 changelog says so, and names D9's one exception | Same seed, same sequence is the product: anyone who stored a seed (save games, generated worlds, test fixtures) keeps their data. The research found no correctness bug in sfc32 (the default) or mulberry32 | Adopt rand-seed 3.0.0's numbers; every stored seed changes |
 | D2 | xoshiro128ss | `PRNG.xoshiro128ss` stays xoshiro128** version 1.0 exactly, as in 1.1.4. xoshiro128** 1.1, the authors' reference, is added as `PRNG.xoshiro128ssReference`. sfc32 stays the default, and the README recommends it for new code | The authors call 1.0's scrambling of `s[0]` a mistake, so the correct algorithm belongs under a new name (the kickoff's rule). The reference also lets a caller match other implementations given the same four state words (with D10's state import). sfc32 needs no new name: 1.1.4's is PractRand's with the counter one higher, the same generator | Name it `xoshiro128ss11` or `xoshiro128StarStar`; or add nothing and document the 1.0 flaw |
+| D2b | mulberry32 (added in Stage 1, under D2's rule) | `PRNG.mulberry32` keeps 1.1.4's counter, a JavaScript number that is never wrapped, exactly. `PRNG.mulberry32Reference` adds Tommy Ettinger's algorithm with a wrapping 32-bit counter | Found on 2026-09-25: the unwrapped counter passes 2^53 after 4,917,757 to 4,917,759 draws (checked for three seed words). From there its low bits round away and the stream departs from mulberry32, losing quality as it goes. rand-seed 3.0.0 has the same flaw | Document the flaw and add nothing |
 | D3 | Runtime dependencies | None. xfnv1a, sfc32, mulberry32 and both xoshiro128** versions are inlined, about 60 lines. rand-seed's MIT notice goes in the file header and is appended to LICENSE; the README credits bryc's public-domain ports and the algorithms' authors | rand-seed can never be upgraded without breaking D1 (1.0.1 and later change xoshiro, 3.0.0 changes sfc32). Inlined, the numbers are ours to guarantee, with zero supply chain | Pin `rand-seed@0.1.5` exactly; it stays in every consumer's tree for good |
 | D4 | Compatibility exports | Keep `PRNG`, as a const object plus a union type: `PRNG.sfc32` works as before, and plain `'sfc32'` now type-checks. Export our own `Rand` with rand-seed 0.1's API (`new Rand(seed?, prng)`, `next()`). The constructor accepts any object with `next(): number` (rand-seed's `Rand` of any version included) instead of testing `instanceof` | Existing `import {Rand, PRNG}` code compiles and gives the same numbers. The TypeScript enum cannot stay, because the tsconfig bases turn on `erasableSyntaxOnly`. Duck typing lets callers plug in any generator | Drop `Rand` and document the break |
 | D5 | Misspelled and `(max, min)` names | `getRandomIntegar`, `getRandomArbitrary` and `getRandomIntInclusive` become deprecated aliases (JSDoc's deprecated tag) for one major of `getRandomInteger`, `getRandomFloat` and `getRandomIntegerInclusive`. The new names take `(max)` or `(min, max)`, give the same numbers as the old ones for the same state, and throw RangeError for an empty or reversed range | A caller who corrects only the spelling and keeps `(max, min)` gets an error, never silently swapped bounds. The same numbers make the move free for stored seeds | Short modern names (`int`, `float`, `bool`, `pick`) |
@@ -290,8 +291,8 @@ get-title-at-url's library entry, without the CLI entry and without the version 
 - [x] Captured golden outputs from the published 1.1.4 in a scratch project before any code change. Committed `test/golden/1.1.4.json` and the capture script `test/golden/capture-1.1.4.cjs`; neither is part of the 1.1.4 build or its jest run.
 - [x] Researched rand-seed's history and checked a zero-dependency port against the fixtures (the research note).
 - [x] Registered everlast (mode repo, sync push). Wrote AGENTS.md, CLAUDE.md (its first line imports AGENTS.md), `.github/copilot-instructions.md`, this plan and the decision record.
-- [ ] Mark: rule on the decisions table. D2's name, D6's conflict with the kickoff's wording, D9 and D10's list are the ones most worth a look. Silence means the recommendations stand.
-- [ ] Mark: answer three questions.
+- [x] Mark: rule on the decisions table. D2's name, D6's conflict with the kickoff's wording, D9 and D10's list are the ones most worth a look. Silence means the recommendations stand. (2026-09-25: every recommendation accepted: "D6 do as you recommend, we want to move forward with the best lib. D2 do it. D9 sure. D10 do what you wish.")
+- [x] Mark: answer three questions. (2026-09-25: yes to all three; the agent turns on secret scanning and push protection itself. Mark also said "do it all", so Stage 1 runs straight into Stage 2, and the next stop is the trusted publisher.)
   1. **Deleting on GitHub in Stage 2.** May the agent delete the codecov webhook (id 160643172) and the 12 Dependabot branches (`gh pr close --delete-branch`), and let `v2` be deleted at the squash-merge?
   2. **Repo settings in Stage 2.** May the agent apply them through `gh`: description, homepage, topics, wiki and projects off, delete-branch-on-merge on, private vulnerability reporting on, and workflow permissions read-only?
   3. **Secret scanning and push protection.** The kickoff makes these Mark's own task; should the agent turn them on with one `gh api` call instead, as it did for get-title-at-url?
@@ -299,23 +300,34 @@ get-title-at-url's library entry, without the CLI entry and without the version 
 
 ### Stage 1: rewrite on branch `v2`
 
-- [ ] Branch `v2` from `master`. Remove `.travis.yml`, `.sonarcloud.properties`, `.eslintrc.json`, `.eslintignore`, `.npmignore`, `jest.config.js`, `rollup.config.js`, the three tsconfig files, `tests/`, `sample/`, and `package-lock.json` (regenerated).
-- [ ] Add `package.json`, `tsconfig.json`, `tsdown.config.ts`, `xo.config.js`, `.editorconfig`, `.gitattributes` (`* text=auto eol=lf`) and `.gitignore`, copied from get-title-at-url and adapted. Deny any dev-only install script in `allowScripts`, as there.
-- [ ] Write `src/` per the source layout, then the golden test first. The first build must pass all 322 cases before any new method is written.
-- [ ] If D2 stands: capture rand-seed 3.0.0's xoshiro128ss streams as the oracle for `xoshiro128ssReference` (a capture-rand-seed-3.0.0.cjs next to the 1.1.4 one), plus raw-state cases from the C reference's algorithm.
-- [ ] Write the rest of `test/`, per the test strategy.
-- [ ] Rewrite the README. It keeps three badges and covers install, usage for ESM, CommonJS, TypeScript, Deno, Bun and browsers, the algorithms table with credits, the determinism promise and its exceptions, the API reference, migration from 1.x, limits (the 2^32 range, the bias bound, O(n) walks) and what the package is not (cryptographic).
-- [ ] Write the CHANGELOG (Keep a Changelog). The first line of 2.0.0 states the determinism decision, followed by a compressed history of 1.0.0 to 1.1.4.
-- [ ] Add SECURITY.md (from get-title-at-url, with 2.x as the supported line) and append rand-seed's notice to LICENSE.
-- [ ] Update AGENTS.md for v2: commands, layout, traps.
-- [ ] Verify on Node 24: lint, typecheck, build, test, check, coverage and the consumer fixtures. Run the suites on Node 20, 22 and 26 (portable builds in the scratchpad, as get-title-at-url did), then from a fresh clone. Record everything in the log.
+- [x] Branch `v2` from `master`. Remove `.travis.yml`, `.sonarcloud.properties`, `.eslintrc.json`, `.eslintignore`, `.npmignore`, `jest.config.js`, `rollup.config.js`, the three tsconfig files, `tests/`, `sample/`, and `package-lock.json` (regenerated).
+- [x] Add `package.json`, `tsconfig.json`, `tsdown.config.ts`, `xo.config.js`, `.editorconfig`, `.gitattributes` (`* text=auto eol=lf`) and `.gitignore`, copied from get-title-at-url and adapted. Deny any dev-only install script in `allowScripts`, as there.
+- [x] Write `src/` per the source layout, then the golden test first. The first build must pass all 322 cases before any new method is written.
+- [x] If D2 stands: capture rand-seed 3.0.0's xoshiro128ss streams as the oracle for `xoshiro128ssReference` (a capture-rand-seed-3.0.0.cjs next to the 1.1.4 one), plus raw-state cases from the C reference's algorithm.
+- [x] Write the rest of `test/`, per the test strategy.
+- [x] Rewrite the README. It keeps three badges and covers install, usage for ESM, CommonJS, TypeScript, Deno, Bun and browsers, the algorithms table with credits, the determinism promise and its exceptions, the API reference, migration from 1.x, limits (the 2^32 range, the bias bound, O(n) walks) and what the package is not (cryptographic).
+- [x] Write the CHANGELOG (Keep a Changelog). The first line of 2.0.0 states the determinism decision, followed by a compressed history of 1.0.0 to 1.1.4.
+- [x] Add SECURITY.md (from get-title-at-url, with 2.x as the supported line) and append rand-seed's notice to LICENSE.
+- [x] Update AGENTS.md for v2: commands, layout, traps.
+- [x] Verify on Node 24: lint, typecheck, build, test, check, coverage and the consumer fixtures. Run the suites on Node 20, 22 and 26 (portable builds in the scratchpad, as get-title-at-url did), then from a fresh clone. Record everything in the log.
 - [ ] Run the simplify, code-review and security-review skills on the branch diff; fix or answer what they find.
 - [ ] Push `v2` and open the pull request, with a "For review" list covering departures from this plan and anything Mark has not ruled on. **Stop** for Mark's review.
 
+### Stage 1 notes (2026-09-25): where the build departs from the plan
+
+Evidence is in the log.
+
+- D2b added: `PRNG.mulberry32Reference`, because 1.1.4's mulberry32 counter is never wrapped and passes 2^53 after about 4.9 million draws.
+- The generators are checked against BigInt versions written from the authors' C code, as well as against rand-seed 3.0.0's streams (`test/golden/rand-seed-3.0.0.json`); the plan named only the rand-seed oracle.
+- `null` is not in the public types (xo bans it, and 1.1.4's types never accepted it); the runtime still treats null as no seed and as the default algorithm.
+- Tarball 40.5 kB with 10 files, most of it the two source maps; the shape test's budget is 45 kB.
+- ci.yml adds `npm audit signatures` (493 packages verified) and `npm audit --omit=dev`, which get-title-at-url's did not have. verify-published imports the package instead of running a CLI.
+- The capture scripts and golden JSON files are excluded from lint and kept exactly as run; `1.1.4.json` contains lone surrogates, which are 1.1.4's broken string shuffles.
+
 ### Stage 2: CI and repository settings (same branch)
 
-- [ ] Add .github/workflows/ci.yml, `release.yml`, `verify-published.yml` and .github/dependabot.yml, copied from get-title-at-url and adapted. There is no CLI, fixture server or `live.yml`. The consumer fixtures also run the golden check, so Bun, Deno and verify-published prove D1 too. Re-check the pinned action SHAs; actionlint must be clean.
-- [ ] Add the AGENTS.md lines on CI and releases.
+- [x] Add .github/workflows/ci.yml, `release.yml`, `verify-published.yml` and .github/dependabot.yml, copied from get-title-at-url and adapted. There is no CLI, fixture server or `live.yml`. The consumer fixtures also run the golden check, so Bun, Deno and verify-published prove D1 too. Re-check the pinned action SHAs; actionlint must be clean. (2026-09-25: adapted, actionlint clean; see the log.)
+- [x] Add the AGENTS.md lines on CI and releases. (2026-09-25: the release ritual, Dependabot, CI on Node 24 and the trusted publisher trap.)
 - [ ] Get CI green on the pull request and record the run id.
 - [ ] Create the ruleset on `master`, as get-title-at-url's 24003504: deletion and non-fast-forward blocked, required check `ci`, admin bypass.
 - [ ] Squash-merge after Mark's review of the pull request.
