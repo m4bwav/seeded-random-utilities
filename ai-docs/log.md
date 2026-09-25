@@ -36,3 +36,5 @@ Append-only. One line per operation: `## [YYYY-MM-DD] op | title` where op is on
 ## [2026-09-25] index | rebuilt (3 entries)
 ## [2026-09-25] update | Stage 3: Mark added the npm trusted publisher (2026-09-25, 'I updated the npm package settings, continue')
 ## [2026-09-25] update | decision (Mark, 2026-09-25): the codecov token committed in 2019 is not revoked, since he may no longer have a Codecov account; accepted because an upload token can only post coverage reports for this repository, .travis.yml is gone from master, and a history rewrite would not un-publish it; suggested instead revoking Codecov under Authorized OAuth Apps on GitHub if it is listed
+## [2026-09-25] update | Stage 3 rehearsal: npm version 2.0.0-beta.1 committed as 11aff9f with tag v2.0.0-beta.1 and pushed; release run 36200979437 green in both jobs; npm stage publish staged seeded-random-utilities@2.0.0-beta.1 with tag next (stage id f59d0341-fbe2-4423-837d-45441b2bd9e4), provenance signed (sigstore log index 2962717492), 44.4 kB, 10 files; GitHub prerelease v2.0.0-beta.1 created; npm dist-tags latest still 1.1.4; waiting for Mark's approval
+## [2026-09-25] handoff | 34 lines

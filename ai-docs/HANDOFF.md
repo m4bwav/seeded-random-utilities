@@ -1,36 +1,34 @@
 # Handoff
 
-Updated 2026-09-25: Stages 0, 1 and 2 of the v2 plan are done. Stage 3, the release, waits for Mark to add the npm trusted publisher. Read this first, then [log.md](log.md) for evidence.
+Updated 2026-09-25: Stages 0 to 2 are done, and 2.0.0-beta.1 is staged on npm waiting for Mark's approval (Stage 3). Read this first, then [log.md](log.md) for evidence.
 
 ## Current state
 
-- **master.** At 3ed7bb2, the squash-merge of pull request #17, plus these docs. CI on master is green (run 36198953515).
-- **The code.** It is 2.0.0, but `package.json` still says 1.1.4 and the CHANGELOG heading reads "Unreleased" until the release step.
-- **Tests.** 1,223 pass on Node 20, 22, 24 and 26, plus Bun and Deno in CI; coverage is 100 percent.
-- **An independent review** found 12 items, all fixed in 19f7f09; the summary is on #17.
-- **GitHub:**
-  - Dependabot alerts 0; no open pull requests (#5 to #16 closed with comments); only `master` on the remote; 0 webhooks.
-  - Ruleset 24022136 protects `master`.
-  - Private vulnerability reporting, secret scanning and push protection are on, and workflow permissions are read-only.
-- **npm.** Only 1.1.4 is published. `release.yml`, `verify-published.yml` and `dependabot.yml` are in place; the first Dependabot run is on a Monday.
-- **The plan.** Its Stage 4 item collects the playbook differences to apply at the end: [plans/2026-09-25-modernization-and-v2-release.md](plans/2026-09-25-modernization-and-v2-release.md).
+- **master.** At 11aff9f ("2.0.0-beta.1", tag v2.0.0-beta.1) plus doc commits. The rewrite is pull request #17, 3ed7bb2. CI is green. The CHANGELOG heading reads "## [2.0.0] - Unreleased", which is correct for a prerelease.
+- **Release run 36200979437** is green: the build job ran lint, types, tests, check and the consumer fixtures. `npm stage publish` staged seeded-random-utilities@2.0.0-beta.1 with tag `next` (stage id f59d0341-fbe2-4423-837d-45441b2bd9e4, provenance signed, sigstore log index 2962717492, 44.4 kB, 10 files). The GitHub prerelease v2.0.0-beta.1 exists.
+- **npm dist-tags:** `latest` is 1.1.4. The staged version is invisible until approved.
+- **The trusted publisher** was added by Mark on 2026-09-25.
+- **The codecov token** will not be revoked, by Mark's decision; see the log.
+- **The plan:** [plans/2026-09-25-modernization-and-v2-release.md](plans/2026-09-25-modernization-and-v2-release.md). Its Stage 4 item collects the playbook differences.
 
 ## Waiting for Mark
 
-1. **The npm trusted publisher**, once, in the browser. On npmjs.com, open seeded-random-utilities, then Settings, then Trusted publishing, and add a GitHub Actions publisher: user `m4bwav`, repository `seeded-random-utilities`, workflow `release.yml`, environment blank, "Allow npm publish" unticked. Also check that publishing access requires two-factor authentication. The exact form and its traps are in get-title-at-url's solution entry: `D:\m4bwa\Claude\Projects\Ai\get-title-at-url\ai-docs\solutions\2026-09-25-publish-to-npm-from-github-actions-without-a-stored-token-th.md`.
-2. **Any time:** revoke the codecov token at codecov.io, and remove any Codecov, SonarCloud or Travis app at github.com/settings/installations and github.com/settings/applications.
+Approve 2.0.0-beta.1 on npmjs.com (the package page's Staged Packages tab, with 2FA).
 
 ## Next single action
 
-When Mark confirms the trusted publisher, release the beta:
+After the approval:
 
-1. On `master`, run `npm version 2.0.0-beta.1`, then `git push --follow-tags`.
-2. Watch `release.yml`, which stages the version under `next`, and stop while Mark approves it.
-3. Run `verify-published.yml` with `2.0.0-beta.1`, and check `npm view seeded-random-utilities dist-tags` (`latest` must still be 1.1.4).
-4. Then 2.0.0 the same way, after dating the CHANGELOG heading.
-5. Then Stage 4: the inventory row, the playbook update, and the skill verdict.
+1. Run `gh workflow run verify-published.yml -R m4bwav/seeded-random-utilities -f version=2.0.0-beta.1` and watch it; all 15 jobs must pass.
+2. Check `npm view seeded-random-utilities dist-tags`: `latest` must still be 1.1.4 and `next` must be 2.0.0-beta.1.
+3. In a temp project, `npm install seeded-random-utilities@next` and run `npm audit signatures`.
+4. Then 2.0.0:
+   - Date the CHANGELOG heading (`## [2.0.0] - <date>`) and commit.
+   - Run `npm version 2.0.0` and `git push --follow-tags`.
+   - Mark approves; run verify-published with 2.0.0.
+5. Then Stage 4: rewrite this file, add the inventory row, update the playbook from the plan's collected list, and give the skill verdict.
 
 ## Dead ends hit
 
-- The Bash tool fails on nested quoting (a node script in double quotes with backticks and dollar signs); use the Edit tool or a script file.
+- The Bash tool loses backslashes and fails on nested quoting; use the Edit tool or a script file (it cost two retries this run).
 - The everlast handoff refuses a body without `## Next single action`.
