@@ -1,56 +1,78 @@
 {
   "name": "seeded-random-utilities",
   "version": "1.1.4",
-  "description": "Common random functions that are seedable with TypeScript support",
-  "main": "dist/seeded-random-utilities.js",
-  "module": "dist/seeded-random-utilities.es.js",
-  "files": [
-    "dist"
-  ],
-  "types": "dist/index.d.ts",
-  "scripts": {
-    "lint": "./node_modules/.bin/eslint --ext .ts ./",
-    "test": "./node_modules/.bin/jest",
-    "build": "./node_modules/.bin/rollup --config",
-    "watch": "./node_modules/.bin/rollup --config --watch"
-  },
+  "description": "Seeded random numbers, integers, booleans, strings, picks and shuffles: the same seed gives the same sequence everywhere. Zero dependencies, TypeScript, ESM and CommonJS, Node 20+.",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/m4bwav/seeded-random-utilities.git"
   },
-  "keywords": [
-    "random",
-    "seed",
-    "randomly",
-    "rand",
-    "generator",
-    "utility"
-  ],
-  "author": "Mark Rogers (http://www.markdavidrogers.com/)",
-  "license": "MIT",
+  "homepage": "https://github.com/m4bwav/seeded-random-utilities#readme",
   "bugs": {
     "url": "https://github.com/m4bwav/seeded-random-utilities/issues"
   },
-  "homepage": "https://github.com/m4bwav/seeded-random-utilities#readme",
-  "devDependencies": {
-    "@types/jest": "^24.0.23",
-    "@typescript-eslint/eslint-plugin": "^2.7.0",
-    "@typescript-eslint/parser": "^2.7.0",
-    "eslint": "^6.6.0",
-    "eslint-plugin-jest": "^23.0.4",
-    "jest": "^24.9.0",
-    "rollup": "^1.27.0",
-    "rollup-plugin-commonjs": "^10.1.0",
-    "rollup-plugin-eslint": "^7.0.0",
-    "rollup-plugin-node-resolve": "^5.2.0",
-    "rollup-plugin-sourcemaps": "^0.4.2",
-    "rollup-plugin-terser": "^5.1.2",
-    "rollup-plugin-typescript2": "^0.25.2",
-    "rollup-plugin-uglify": "^6.0.3",
-    "ts-jest": "^24.1.0",
-    "typescript": "^3.7.2"
+  "author": "Mark Rogers (https://www.markdavidrogers.com)",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    },
+    "./package.json": "./package.json"
   },
-  "dependencies": {
-    "rand-seed": "^0.1.2"
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.cts",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "test": "npm run build && npm run test:dist",
+    "test:dist": "node --test test/golden/golden.test.js test/unit/api.test.js test/unit/generators.test.js test/unit/distribution.test.js test/package/shape.test.js",
+    "test:consumers": "npm run build && node --test test/consumers/consumers.test.js",
+    "coverage": "npm run build && c8 --check-coverage --lines 95 --branches 90 --exclude-after-remap --include \"src/**\" --reporter text --reporter lcov node --test test/golden/golden.test.js test/unit/api.test.js test/unit/generators.test.js test/unit/distribution.test.js",
+    "lint": "xo",
+    "typecheck": "tsc --noEmit",
+    "check": "publint && attw --pack . && npm pack --dry-run",
+    "prepack": "npm run build",
+    "prepublishOnly": "npm run lint && npm run typecheck && npm run check && npm test"
+  },
+  "files": [
+    "CHANGELOG.md",
+    "dist"
+  ],
+  "keywords": [
+    "random",
+    "seed",
+    "seeded",
+    "prng",
+    "rng",
+    "deterministic",
+    "reproducible",
+    "shuffle",
+    "sample",
+    "weighted",
+    "sfc32",
+    "mulberry32",
+    "xoshiro128",
+    "typescript",
+    "esm",
+    "cjs"
+  ],
+  "devDependencies": {
+    "@arethetypeswrong/cli": "^0.18.5",
+    "@tsconfig/node-ts": "^23.6.4",
+    "@tsconfig/node20": "^20.1.10",
+    "@types/node": "^24.13.6",
+    "c8": "^12.0.0",
+    "publint": "^0.3.24",
+    "tsdown": "0.23.0",
+    "typescript": "~6.0.3",
+    "xo": "^5.0.1"
+  },
+  "allowScripts": {
+    "unrs-resolver": false
   }
 }
