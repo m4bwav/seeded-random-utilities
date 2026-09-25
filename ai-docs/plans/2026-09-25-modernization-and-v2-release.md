@@ -356,6 +356,10 @@ Evidence is in the log.
     - Decisions need a `## Reasons` heading.
     - Paths to files that do not exist yet must be written without backticks.
   - **Working directory.** A `cd` inside a Bash call moves the session's primary working directory for every later call; use absolute paths and `git -C`.
+  - **Check the arithmetic, not only the outputs.** The golden file cannot catch everything. rand-seed's mulberry32 adds to a JavaScript number without wrapping it, so it only departs from the algorithm after 4.9 million draws, far past any fixture (D2b). Reading each ported expression for unwrapped sums, float multiplies and signed-versus-unsigned words found it. Oracles written from the authors' reference code (BigInt versions of the C) are worth adding for any algorithmic package.
+  - **A package without a CLI** needs verify-published to import the package in a fresh project, instead of running a bin. `npm audit signatures` over the whole dev tree passed (493 packages), so it can join ci.yml.
+  - **Nested quoting through Bash** (a node script inside a double-quoted bash string with backticks and dollar signs) failed with "bad substitution". Use the Edit tool for multi-line YAML or code edits.
+  - **The golden test first** paid off: the first build passed all 322 cases, which then pinned every later refactor, including the ones `xo --fix` made.
 - [ ] Tell Mark whether the playbook is ready to become the `npm-modernize` evergreen skill (not built in this run).
 - [ ] Standing work: merge Dependabot pull requests when CI is green. 3.0.0 removes the deprecated names; plan it together with the Node floor moving to 24 after Node 22 reaches end of life (2027-04-30).
 
