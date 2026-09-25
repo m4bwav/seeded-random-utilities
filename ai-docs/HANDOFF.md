@@ -1,41 +1,40 @@
 # Handoff
 
-Updated 2026-09-25 (Stage 0 of the v2 plan is done; stopped for Mark's plan review). Read this first, then [log.md](log.md) when you need evidence.
+Updated 2026-09-25, interim: Stage 1 is done and pull request #17 is open with CI green; Stage 2 is in progress. Read this first, then [log.md](log.md) for evidence.
 
 ## Current state
 
-- **The plan.** [plans/2026-09-25-modernization-and-v2-release.md](plans/2026-09-25-modernization-and-v2-release.md) holds the survey, the 14 confirmed 1.1.4 bugs, decisions D1 to D21, the v2 API with the 1.1.4 name map, the build and test strategy, stages 0 to 4, the pull request table, security and the checklist.
-- **The research behind D1 to D3.** [notes/2026-09-25-rand-seed-history-and-the-1-1-4-golden-sequences.md](notes/2026-09-25-rand-seed-history-and-the-1-1-4-golden-sequences.md).
-- **The decision record.** It stays proposed until Mark rules: [decisions/2026-09-25-v2-shape-keep-the-1-1-4-sequences-zero-deps-deprecated-aliases.md](decisions/2026-09-25-v2-shape-keep-the-1-1-4-sequences-zero-deps-deprecated-aliases.md).
-- **On master.** One Stage 0 commit: AGENTS.md, CLAUDE.md (its first line imports AGENTS.md), `.github/copilot-instructions.md`, `ai-docs/`, and `test/golden/` (1.1.4.json with 322 cases captured from the published 1.1.4, and capture-1.1.4.cjs). No package code has changed.
-- **Unchanged since the survey.** npm still has 1.1.4 only. GitHub still has 12 open Dependabot pull requests, 72 alerts, the codecov webhook and no workflows.
-
-## Waiting for Mark
-
-1. Rule on the decisions table; silence means the recommendations stand. The ones most worth a look:
-   - D2: the name `PRNG.xoshiro128ssReference`.
-   - D6: the kickoff asked for `generateRandomArrayOfUniqueIntegers` to be bounded, which conflicts with D1's bit-for-bit promise. The recommendation keeps the old method exact and adds `getUniqueRandomIntegers`.
-   - D9: shuffling strings by code point, the one exception to D1.
-   - D10: which additions to keep.
-2. Answer three questions (plan, Stage 0):
-   - May the agent delete the codecov webhook, the 12 Dependabot branches, and `v2` after the merge?
-   - May the agent apply the repo settings through `gh`?
-   - Who turns on secret scanning and push protection?
-3. Any time, blocking nothing: revoke the codecov token at codecov.io. Check github.com/settings/installations and github.com/settings/applications for Codecov, SonarCloud and Travis CI.
-
-## Decisions made this session (proposed)
-
-- D1: 2.0.0 reproduces 1.1.4 bit for bit.
-- D2: xoshiro128** 1.1 is added under a new name; 1.1.4's is version 1.0, which the authors call a mistake.
-- D3: rand-seed is inlined; no runtime dependencies.
-- D5: the old names become deprecated aliases of `(min, max)` names that give the same numbers.
-- D7: numbers become real seeds, and unknown algorithm names throw.
-
-## Dead ends hit
-
-- The 1.1.4 npm scripts fail under cmd.exe ("'.' is not recognized"). Run them with `--script-shell` pointing at Git Bash (AGENTS.md, Commands).
-- The kickoff survey said 1.1.4 treats `''` as no seed. It does not; the golden quirks prove it.
+- **Mark's rulings (2026-09-25).** Every recommendation was accepted, including D2b, added in Stage 1. The agent may delete the webhook and the branches, apply the repo settings, and turn on secret scanning and push protection. He said "do it all".
+- **Branch `v2`.** It holds the rewrite in 6e48c40 (src/, config, lockfile v3), f0b59fb (tests), 5f3a37e (README, CHANGELOG, SECURITY.md, LICENSE) and 528bccf (workflows, dependabot.yml), plus doc commits. It is pushed.
+- **Pull request #17**, v2 into master: https://github.com/m4bwav/seeded-random-utilities/pull/17. CI run 36195647679 is green in all 11 jobs; Bun 1.4.2 and Deno ran every golden case.
+- **Verified locally:** 905 of 905 tests on Node 20.20.2, 22.23.3, 24.18.0 and 26.10.0, coverage 100 percent, publint and attw clean, tarball 40.5 kB, and a fresh clone is clean.
+- **Ruleset 24022136** "master" is active: deletion and force push blocked, `ci` required, admin bypass.
+- **An independent review** (a subagent) of src/ was started; its findings go into the pull request as a comment and into the log.
+- **Nothing is published.** npm still has only 1.1.4.
 
 ## Next single action
 
-When Mark has ruled, branch `v2` from `master` and start Stage 1. Write the golden test first: the first build must pass all 322 cases before any new method is written.
+Triage the independent review's findings on pull request #17 (the steps below follow).
+
+## Stage 2 steps left, in order
+
+1. Triage the review findings, and fix the real ones on v2 with a test each; CI must be green again.
+2. Squash-merge #17. Record the full merge SHA as M, and let v2 be deleted.
+3. Check that `gh api "repos/m4bwav/seeded-random-utilities/dependabot/alerts?state=open" --jq length` prints 0.
+4. Close #5 to #16 with the loop in the plan's appendix (it names M and the tool behind each package).
+5. Delete webhook 160643172 and apply the repo settings (plan appendix).
+6. Turn on secret scanning and push protection:
+   `gh api -X PATCH repos/m4bwav/seeded-random-utilities -f 'security_and_analysis[secret_scanning][status]=enabled' -f 'security_and_analysis[secret_scanning_push_protection][status]=enabled'`.
+7. **Stop:** Mark adds the npm trusted publisher (plan, Stage 3). Then 2.0.0-beta.1, then 2.0.0.
+
+## Mark's own tasks
+
+- Revoke the codecov token at codecov.io.
+- Remove any Codecov, SonarCloud or Travis app at github.com/settings/installations and github.com/settings/applications.
+- Add the npm trusted publisher.
+- Approve each staged version with 2FA.
+
+## Dead ends hit
+
+- Nested quoting through the Bash tool (a node script inside double quotes with backticks and dollar signs) fails; use the Edit tool.
+- `xo --fix` rewrites code. Stage your work first and read its diff to src/; it was harmless here.
