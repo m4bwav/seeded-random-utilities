@@ -297,7 +297,7 @@ get-title-at-url's library entry, without the CLI entry and without the version 
   1. **Deleting on GitHub in Stage 2.** May the agent delete the codecov webhook (id 160643172) and the 12 Dependabot branches (`gh pr close --delete-branch`), and let `v2` be deleted at the squash-merge?
   2. **Repo settings in Stage 2.** May the agent apply them through `gh`: description, homepage, topics, wiki and projects off, delete-branch-on-merge on, private vulnerability reporting on, and workflow permissions read-only?
   3. **Secret scanning and push protection.** The kickoff makes these Mark's own task; should the agent turn them on with one `gh api` call instead, as it did for get-title-at-url?
-- [ ] Mark, any time (it blocks nothing): revoke the codecov token at codecov.io (the repository's settings; regenerate the upload token, or deactivate the repository, since D18 drops codecov). Also look at github.com/settings/installations and github.com/settings/applications for Codecov, SonarCloud (SonarQube Cloud) and Travis CI, and remove the ones no repository needs.
+- [x] Mark, any time (it blocks nothing): revoke the codecov token at codecov.io (the repository's settings; regenerate the upload token, or deactivate the repository, since D18 drops codecov). Also look at github.com/settings/installations and github.com/settings/applications for Codecov, SonarCloud (SonarQube Cloud) and Travis CI, and remove the ones no repository needs. (2026-09-25: Mark decided not to revoke it: he may no longer have a Codecov account. Accepted risk: the token can only upload coverage reports for this repository to Codecov, the file is gone from master, and rewriting history would not un-publish it. Suggested instead: revoke Codecov under Authorized OAuth Apps at github.com/settings/applications if it is listed.)
 
 ### Stage 1: rewrite on branch `v2`
 
@@ -334,11 +334,11 @@ Evidence is in the log.
 - [x] Squash-merge after Mark's review of the pull request. (2026-09-25, on Mark's "do it all": 3ed7bb2; master CI run 36198953515 green.)
 - [x] Confirm the Dependabot alerts are 0. Then close #5 to #16, one comment each, naming the merge commit and the removed tool that brought the package in (the table below).
 - [x] Delete the codecov webhook (Stage 0 question 1). Apply the repo settings (question 2). (Done and read back, see the log.)
-- [ ] Mark: revoke the codecov token and remove any Codecov app. (Secret scanning and push protection were turned on by the agent on 2026-09-25, question 3; no alert was raised for the token.)
+- [x] Mark: revoke the codecov token and remove any Codecov app. (Secret scanning and push protection were turned on by the agent on 2026-09-25, question 3; no alert was raised for the token.) Decided 2026-09-25, see the Stage 0 item.
 
 ### Stage 3: release 2.0.0
 
-- [ ] Mark, once, in the browser, following get-title-at-url's trusted-publishing solution (ai-docs/solutions/2026-09-25-publish-to-npm-from-github-actions-without-a-stored-token-th.md there): on npmjs.com, open seeded-random-utilities, then Settings, then Trusted publishing, and add a GitHub Actions publisher. The fields are: user `m4bwav`, repository `seeded-random-utilities`, workflow `release.yml`, environment blank, "Allow npm publish" unticked. Check that the package's publishing access requires 2FA.
+- [x] Mark, once, in the browser, following get-title-at-url's trusted-publishing solution (ai-docs/solutions/2026-09-25-publish-to-npm-from-github-actions-without-a-stored-token-th.md there): on npmjs.com, open seeded-random-utilities, then Settings, then Trusted publishing, and add a GitHub Actions publisher. The fields are: user `m4bwav`, repository `seeded-random-utilities`, workflow `release.yml`, environment blank, "Allow npm publish" unticked. Check that the package's publishing access requires 2FA. (2026-09-25: Mark added it and said "I updated the npm package settings, continue".)
 - [ ] Agent, only after Mark confirms: run `npm version 2.0.0-beta.1` on `master`, then `git push --follow-tags`. `release.yml` stages the version under `next`. **Stop** while Mark approves. Then verify: `npm view seeded-random-utilities dist-tags` (`latest` still 1.1.4), `verify-published.yml` with `2.0.0-beta.1`, and `npm audit signatures` in a temporary project.
 - [ ] Agent: date the changelog, run `npm version 2.0.0`, push, and watch the run. **Stop** while Mark approves. Then verify from the registry: `verify-published.yml` with `2.0.0`, the GitHub Release `v2.0.0` and provenance.
 

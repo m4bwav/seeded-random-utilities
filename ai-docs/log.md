@@ -34,3 +34,5 @@ Append-only. One line per operation: `## [YYYY-MM-DD] op | title` where op is on
 ## [2026-09-25] update | Stage 2 repo settings, read back: webhook 160643172 (codecov.io) deleted, hooks 0; description, homepage npmjs.com/package/seeded-random-utilities and 8 topics set; wiki and projects off; delete-branch-on-merge on; private vulnerability reporting on; default workflow permissions read, PR approvals off; secret scanning and push protection enabled (no secret-scanning alert raised for the old codecov token: revocation at codecov.io is still Mark's)
 ## [2026-09-25] handoff | 36 lines
 ## [2026-09-25] index | rebuilt (3 entries)
+## [2026-09-25] update | Stage 3: Mark added the npm trusted publisher (2026-09-25, 'I updated the npm package settings, continue')
+## [2026-09-25] update | decision (Mark, 2026-09-25): the codecov token committed in 2019 is not revoked, since he may no longer have a Codecov account; accepted because an upload token can only post coverage reports for this repository, .travis.yml is gone from master, and a history rewrite would not un-publish it; suggested instead revoking Codecov under Authorized OAuth Apps on GitHub if it is listed
