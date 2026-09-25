@@ -1,40 +1,36 @@
 # Handoff
 
-Updated 2026-09-25, interim: Stage 1 is done and pull request #17 is open with CI green; Stage 2 is in progress. Read this first, then [log.md](log.md) for evidence.
+Updated 2026-09-25: Stages 0, 1 and 2 of the v2 plan are done. Stage 3, the release, waits for Mark to add the npm trusted publisher. Read this first, then [log.md](log.md) for evidence.
 
 ## Current state
 
-- **Mark's rulings (2026-09-25).** Every recommendation was accepted, including D2b, added in Stage 1. The agent may delete the webhook and the branches, apply the repo settings, and turn on secret scanning and push protection. He said "do it all".
-- **Branch `v2`.** It holds the rewrite in 6e48c40 (src/, config, lockfile v3), f0b59fb (tests), 5f3a37e (README, CHANGELOG, SECURITY.md, LICENSE) and 528bccf (workflows, dependabot.yml), plus doc commits. It is pushed.
-- **Pull request #17**, v2 into master: https://github.com/m4bwav/seeded-random-utilities/pull/17. CI run 36195647679 is green in all 11 jobs; Bun 1.4.2 and Deno ran every golden case.
-- **Verified locally:** 905 of 905 tests on Node 20.20.2, 22.23.3, 24.18.0 and 26.10.0, coverage 100 percent, publint and attw clean, tarball 40.5 kB, and a fresh clone is clean.
-- **Ruleset 24022136** "master" is active: deletion and force push blocked, `ci` required, admin bypass.
-- **An independent review** (a subagent) of src/ was started; its findings go into the pull request as a comment and into the log.
-- **Nothing is published.** npm still has only 1.1.4.
+- **master.** At 3ed7bb2, the squash-merge of pull request #17, plus these docs. CI on master is green (run 36198953515).
+- **The code.** It is 2.0.0, but `package.json` still says 1.1.4 and the CHANGELOG heading reads "Unreleased" until the release step.
+- **Tests.** 1,223 pass on Node 20, 22, 24 and 26, plus Bun and Deno in CI; coverage is 100 percent.
+- **An independent review** found 12 items, all fixed in 19f7f09; the summary is on #17.
+- **GitHub:**
+  - Dependabot alerts 0; no open pull requests (#5 to #16 closed with comments); only `master` on the remote; 0 webhooks.
+  - Ruleset 24022136 protects `master`.
+  - Private vulnerability reporting, secret scanning and push protection are on, and workflow permissions are read-only.
+- **npm.** Only 1.1.4 is published. `release.yml`, `verify-published.yml` and `dependabot.yml` are in place; the first Dependabot run is on a Monday.
+- **The plan.** Its Stage 4 item collects the playbook differences to apply at the end: [plans/2026-09-25-modernization-and-v2-release.md](plans/2026-09-25-modernization-and-v2-release.md).
+
+## Waiting for Mark
+
+1. **The npm trusted publisher**, once, in the browser. On npmjs.com, open seeded-random-utilities, then Settings, then Trusted publishing, and add a GitHub Actions publisher: user `m4bwav`, repository `seeded-random-utilities`, workflow `release.yml`, environment blank, "Allow npm publish" unticked. Also check that publishing access requires two-factor authentication. The exact form and its traps are in get-title-at-url's solution entry: `D:\m4bwa\Claude\Projects\Ai\get-title-at-url\ai-docs\solutions\2026-09-25-publish-to-npm-from-github-actions-without-a-stored-token-th.md`.
+2. **Any time:** revoke the codecov token at codecov.io, and remove any Codecov, SonarCloud or Travis app at github.com/settings/installations and github.com/settings/applications.
 
 ## Next single action
 
-Triage the independent review's findings on pull request #17 (the steps below follow).
+When Mark confirms the trusted publisher, release the beta:
 
-## Stage 2 steps left, in order
-
-1. Triage the review findings, and fix the real ones on v2 with a test each; CI must be green again.
-2. Squash-merge #17. Record the full merge SHA as M, and let v2 be deleted.
-3. Check that `gh api "repos/m4bwav/seeded-random-utilities/dependabot/alerts?state=open" --jq length` prints 0.
-4. Close #5 to #16 with the loop in the plan's appendix (it names M and the tool behind each package).
-5. Delete webhook 160643172 and apply the repo settings (plan appendix).
-6. Turn on secret scanning and push protection:
-   `gh api -X PATCH repos/m4bwav/seeded-random-utilities -f 'security_and_analysis[secret_scanning][status]=enabled' -f 'security_and_analysis[secret_scanning_push_protection][status]=enabled'`.
-7. **Stop:** Mark adds the npm trusted publisher (plan, Stage 3). Then 2.0.0-beta.1, then 2.0.0.
-
-## Mark's own tasks
-
-- Revoke the codecov token at codecov.io.
-- Remove any Codecov, SonarCloud or Travis app at github.com/settings/installations and github.com/settings/applications.
-- Add the npm trusted publisher.
-- Approve each staged version with 2FA.
+1. On `master`, run `npm version 2.0.0-beta.1`, then `git push --follow-tags`.
+2. Watch `release.yml`, which stages the version under `next`, and stop while Mark approves it.
+3. Run `verify-published.yml` with `2.0.0-beta.1`, and check `npm view seeded-random-utilities dist-tags` (`latest` must still be 1.1.4).
+4. Then 2.0.0 the same way, after dating the CHANGELOG heading.
+5. Then Stage 4: the inventory row, the playbook update, and the skill verdict.
 
 ## Dead ends hit
 
-- Nested quoting through the Bash tool (a node script inside double quotes with backticks and dollar signs) fails; use the Edit tool.
-- `xo --fix` rewrites code. Stage your work first and read its diff to src/; it was harmless here.
+- The Bash tool fails on nested quoting (a node script in double quotes with backticks and dollar signs); use the Edit tool or a script file.
+- The everlast handoff refuses a body without `## Next single action`.

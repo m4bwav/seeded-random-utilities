@@ -28,11 +28,12 @@ Ship `seeded-random-utilities` 2.0.0 to npm with these properties:
 
 ## Status
 
-2026-09-25: Stage 0 is done.
+2026-09-25: Stages 0, 1 and 2 are done; Stage 3 waits for Mark to add the npm trusted publisher.
 
-- **Done.** The survey and baseline are below. The golden fixtures are committed on master, captured from the published 1.1.4 before any code change. Everlast is registered (mode repo, sync push). AGENTS.md, CLAUDE.md and the Copilot pointer are written, along with this plan, the research note and the decision record.
-- **Waiting for Mark.** He rules on the decisions table (silence means the recommendations stand) and answers the three questions under Stage 0.
-- **Not started.** No package code has changed and nothing is published.
+- **Stage 0.** The survey, the baseline and the golden capture are done; Mark accepted every decision.
+- **Stage 1.** The rewrite is merged. After an independent review, 1,223 tests pass on Node 20, 22, 24 and 26, plus Bun and Deno in CI.
+- **Stage 2.** Pull request #17 was squash-merged as 3ed7bb2. The Dependabot alerts are 0, and #5 to #16 are closed. The codecov webhook is deleted, the settings are applied, and secret scanning and push protection are on.
+- **Nothing is published:** npm still has only 1.1.4.
 
 Update this section as stages land.
 
@@ -310,8 +311,8 @@ get-title-at-url's library entry, without the CLI entry and without the version 
 - [x] Add SECURITY.md (from get-title-at-url, with 2.x as the supported line) and append rand-seed's notice to LICENSE.
 - [x] Update AGENTS.md for v2: commands, layout, traps.
 - [x] Verify on Node 24: lint, typecheck, build, test, check, coverage and the consumer fixtures. Run the suites on Node 20, 22 and 26 (portable builds in the scratchpad, as get-title-at-url did), then from a fresh clone. Record everything in the log.
-- [ ] Run the simplify, code-review and security-review skills on the branch diff; fix or answer what they find.
-- [ ] Push `v2` and open the pull request, with a "For review" list covering departures from this plan and anything Mark has not ruled on. **Stop** for Mark's review.
+- [x] Run the simplify, code-review and security-review skills on the branch diff; fix or answer what they find. (2026-09-25: done as one independent read-only review by a subagent, with differential fuzzing against the published 1.1.4; 12 findings, all addressed in 19f7f09, summary on pull request #17.)
+- [x] Push `v2` and open the pull request, with a "For review" list covering departures from this plan and anything Mark has not ruled on. **Stop** for Mark's review.
 
 ### Stage 1 notes (2026-09-25): where the build departs from the plan
 
@@ -328,12 +329,12 @@ Evidence is in the log.
 
 - [x] Add .github/workflows/ci.yml, `release.yml`, `verify-published.yml` and .github/dependabot.yml, copied from get-title-at-url and adapted. There is no CLI, fixture server or `live.yml`. The consumer fixtures also run the golden check, so Bun, Deno and verify-published prove D1 too. Re-check the pinned action SHAs; actionlint must be clean. (2026-09-25: adapted, actionlint clean; see the log.)
 - [x] Add the AGENTS.md lines on CI and releases. (2026-09-25: the release ritual, Dependabot, CI on Node 24 and the trusted publisher trap.)
-- [ ] Get CI green on the pull request and record the run id.
-- [ ] Create the ruleset on `master`, as get-title-at-url's 24003504: deletion and non-fast-forward blocked, required check `ci`, admin bypass.
-- [ ] Squash-merge after Mark's review of the pull request.
-- [ ] Confirm the Dependabot alerts are 0. Then close #5 to #16, one comment each, naming the merge commit and the removed tool that brought the package in (the table below).
-- [ ] Delete the codecov webhook (Stage 0 question 1). Apply the repo settings (question 2).
-- [ ] Mark: revoke the codecov token if not done, remove any Codecov app, and turn on secret scanning and push protection (or the agent does it, question 3). After that, close any secret-scanning alert for the token as revoked.
+- [x] Get CI green on the pull request and record the run id. (Runs 36195647679 and, after the review fixes, 36198843424: all 11 jobs green.)
+- [x] Create the ruleset on `master`, as get-title-at-url's 24003504: deletion and non-fast-forward blocked, required check `ci`, admin bypass.
+- [x] Squash-merge after Mark's review of the pull request. (2026-09-25, on Mark's "do it all": 3ed7bb2; master CI run 36198953515 green.)
+- [x] Confirm the Dependabot alerts are 0. Then close #5 to #16, one comment each, naming the merge commit and the removed tool that brought the package in (the table below).
+- [x] Delete the codecov webhook (Stage 0 question 1). Apply the repo settings (question 2). (Done and read back, see the log.)
+- [ ] Mark: revoke the codecov token and remove any Codecov app. (Secret scanning and push protection were turned on by the agent on 2026-09-25, question 3; no alert was raised for the token.)
 
 ### Stage 3: release 2.0.0
 
