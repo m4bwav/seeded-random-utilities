@@ -16,7 +16,7 @@ The algorithm for a constructor argument: sfc32 for undefined or null, otherwise
 */
 export function parseAlgorithm(prng: unknown): PRNG {
   if (prng === undefined || prng === null) {
-    return PRNG.sfc32;
+    return 'sfc32';
   }
 
   const algorithm = toAlgorithm(prng);
@@ -45,16 +45,25 @@ export function parseSeed(seed: unknown): string | undefined {
     return String(seed);
   }
 
+  // A String object (new String('abc')), which 1.1.4 hashed like its string.
+  if (Object.prototype.toString.call(seed) === '[object String]') {
+    return String.prototype.valueOf.call(seed);
+  }
+
   throw new TypeError(`A seed must be a string or a finite number, not ${describe(seed)}`);
 }
 
 /**
-The generator for a seed and an algorithm, or undefined when there is no seed.
+A seeded generator and its algorithm, or undefined when there is no seed. The algorithm is checked only when there is a seed to hash, since 1.1.4 ignored it otherwise.
 */
-export function seededGenerator(seed: unknown, prng: unknown): Generator | undefined {
-  const algorithm = parseAlgorithm(prng);
+export function seededGenerator(seed: unknown, prng: unknown): {algorithm: PRNG; generator: Generator} | undefined {
   const text = parseSeed(seed);
-  return text === undefined ? undefined : generatorFromSeed(algorithm, text);
+  if (text === undefined) {
+    return undefined;
+  }
+
+  const algorithm = parseAlgorithm(prng);
+  return {algorithm, generator: generatorFromSeed(algorithm, text)};
 }
 
 /**
@@ -77,7 +86,7 @@ export class Rand implements RandomSource {
   @param prng - The algorithm; sfc32 when omitted.
   */
   constructor(seed?: Seed, prng?: PRNG) {
-    this.#source = seededGenerator(seed, prng) ?? unseeded;
+    this.#source = seededGenerator(seed, prng)?.generator ?? unseeded;
   }
 
   /**

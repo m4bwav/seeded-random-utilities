@@ -33,9 +33,9 @@
  */
 
 /**
-The generator algorithms. The values are plain strings, so `'sfc32'` works wherever `PRNG.sfc32` does.
+The generator algorithms. The values are plain strings, so `'sfc32'` works wherever `PRNG.sfc32` does. Frozen, so no code can change what a name means.
 */
-export const PRNG = {
+export const PRNG = Object.freeze({
   /**
   Sfc32 (Chris Doty-Humphrey's Small Fast Counting generator, from PractRand): 128-bit state. The default, and the recommended choice. As in 1.1.4.
   */
@@ -56,7 +56,7 @@ export const PRNG = {
   Xoshiro128** 1.1, the authors' reference algorithm (the same numbers as rand-seed 2.0.0 and later give for `xoshiro128ss`). New in 2.0.0.
   */
   xoshiro128ssReference: 'xoshiro128ssReference',
-} as const;
+} as const);
 
 /**
 The name of a generator algorithm: one of the values of `PRNG`.
@@ -252,19 +252,21 @@ export function isValidState(algorithm: PRNG, words: readonly unknown[]): words 
     return false;
   }
 
-  if (algorithm === 'mulberry32') {
-    // Not isSafeInteger: 1.1.4's counter passes 2^53 after about 4.9 million draws, and that state must round-trip too.
-    // eslint-disable-next-line unicorn/prefer-number-is-safe-integer
-    return words.every(word => Number.isInteger(word) && (word as number) >= 0);
-  }
-
-  if (words.some(word => !isWord(word))) {
-    return false;
+  // A for-of loop, not every(): every() skips the holes of a sparse array, for-of reads them as undefined.
+  for (const word of words) {
+    if (!(algorithm === 'mulberry32' ? isLegacyMulberryCounter(word) : isWord(word))) {
+      return false;
+    }
   }
 
   const isXoshiro = algorithm === 'xoshiro128ss' || algorithm === 'xoshiro128ssReference';
   return !isXoshiro || words.some(word => word !== 0);
 }
+
+// 1.1.4's mulberry32 counter passes 2^53 after about 4.9 million draws, and that state must round-trip too, so not isSafeInteger.
+// From 2^84 on, adding the increment no longer changes it, so no generator can have got there.
+// eslint-disable-next-line unicorn/prefer-number-is-safe-integer
+const isLegacyMulberryCounter = (value: unknown): boolean => Number.isInteger(value) && (value as number) >= 0 && (value as number) < 2 ** 84;
 
 /**
 The name as a `PRNG` value, or undefined when it is not one.

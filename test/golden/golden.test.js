@@ -9,6 +9,8 @@ import {describe, test} from 'node:test';
 import {builds} from '../helpers/builds.js';
 
 const golden = JSON.parse(readFileSync(new URL('1.1.4.json', import.meta.url), 'utf8'));
+// The methods new in 2.0.0, captured from the 2.0.0 build before its release (capture-2.0.0.cjs): later 2.x versions must keep these too.
+const golden2 = JSON.parse(readFileSync(new URL('2.0.0.json', import.meta.url), 'utf8'));
 
 const RENAMED = {
   getRandomIntegar: 'getRandomInteger',
@@ -87,6 +89,19 @@ for (const {name, lib} of builds) {
           runScript(rng, entry);
         } else if (isAstralTextShuffle(entry)) {
           runAstralTextShuffle(rng, entry, create);
+        } else {
+          runCalls(rng, entry);
+        }
+      });
+    }
+  });
+
+  describe(`2.0.0 golden cases, the methods new in 2.0.0 (${name} build)`, () => {
+    for (const [index, entry] of golden2.cases.entries()) {
+      test(label(index, entry), () => {
+        const rng = create(entry);
+        if (entry.method === 'script') {
+          runScript(rng, entry);
         } else {
           runCalls(rng, entry);
         }

@@ -22,8 +22,8 @@ const PUBLISHED_FILES = [
   'package.json',
 ];
 
-// The first build packed to about 36 kB, most of it the two source maps, which carry the TypeScript source for debuggers and bundlers.
-const TARBALL_BUDGET = 45_000;
+// About 44 kB after the review fixes (2026-09-25), most of it the two source maps, which carry the TypeScript source for debuggers and bundlers.
+const TARBALL_BUDGET = 50_000;
 
 test('the tarball holds exactly the built files and the docs, and stays under the size budget', async () => {
   // --ignore-scripts: prepack would rebuild dist/ while the other test files are reading it.

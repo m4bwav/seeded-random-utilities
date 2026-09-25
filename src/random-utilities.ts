@@ -23,7 +23,8 @@ export type GeneratorState = {
 /**
 Every instance method of `SeededRandomUtilities`, which documents them.
 */
-export type RandomUtilities = {
+// eslint-disable-next-line @typescript-eslint/consistent-type-definitions -- an interface, as in 1.1.4, so code that augments it keeps compiling
+export interface RandomUtilities {
   random(): number;
   getRandom(): number;
   getRandomInteger(max: number): number;
@@ -42,7 +43,7 @@ export type RandomUtilities = {
   getUniqueRandomIntegers(amount: number, min: number, max: number): number[];
   shuffle(text: string, copy?: boolean): string;
   shuffle<T>(array: readonly T[]): T[];
-  shuffle<T>(array: T[], copy: boolean): T[];
+  shuffle<T>(array: T[], copy?: boolean): T[];
   chooseBooleanRandomlyWithProbability(itemCount: number, picks?: number): boolean;
   getState(): GeneratorState;
   /**
@@ -61,4 +62,4 @@ export type RandomUtilities = {
   @deprecated Use `getUniqueRandomIntegers(amount, 0, maxValue + 1)`, which takes time and memory in proportion to the amount, not the range (a different sequence).
   */
   generateRandomArrayOfUniqueIntegers(amount: number, maxValue: number, skipShuffle?: boolean): number[];
-};
+}

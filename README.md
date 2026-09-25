@@ -47,7 +47,7 @@ const {SeededRandomUtilities, PRNG} = require('seeded-random-utilities');
 
 **Bun:** `bun add seeded-random-utilities`, then import as above.
 
-**Browsers:** through any bundler, or as an ES module from a CDN that serves npm packages:
+**Browsers:** through any bundler, or as an ES module from a CDN that serves npm packages. The code is ES2022: Chrome 93, Firefox 92, Safari 15.4 or later.
 
 ```html
 <script type="module">
@@ -135,7 +135,9 @@ The three exceptions are inputs that 1.1.4 handled badly:
 
 - `shuffle` on a string splits it by character, where 1.1.4 cut emoji and other characters outside the Basic Multilingual Plane in half. Strings without such characters shuffle exactly as before.
 - A number used as a seed is hashed as its string. In 1.1.4 every number gave the same sequence as the empty string.
-- An unknown algorithm name throws `TypeError`, where 1.1.4 silently fell back to `Math.random()`.
+- An unknown algorithm name with a seed throws `TypeError`, where 1.1.4 silently fell back to `Math.random()`.
+
+A few rare call patterns also changed, such as passing methods as array callbacks (`array.map(rng.getRandomBool, rng)`); the [changelog](CHANGELOG.md) lists them.
 
 ## Migrating from 1.x
 
@@ -153,7 +155,9 @@ The four old methods still work, with 1.1.4's behaviour for every input. They ar
 ## Limits
 
 - **Not for security.** A seed, or a few outputs, reveal the whole sequence. Use `crypto.getRandomValues()` for passwords, tokens, keys and anything with money on it.
-- Integer methods draw one 32-bit number, so a range may hold at most 2^32 integers (wider ranges throw). A range of n integers is uniform to within n / 2^32, which is less than one in a million below 4,294 integers.
+- Integer methods draw one 32-bit number, so a range may hold at most 2^32 integers, all within ±(2^53 - 1); anything else throws. A range of n integers is uniform to within n / 2^32, which is less than one in a million below 4,294 integers.
+- `getRandomFloat` computes `random() * (max - min) + min`, as 1.x did, so when the range is tiny next to its bounds, rounding can return `max` itself.
+- `getRandomString` and `getUniqueRandomIntegers` return at most 2^24 (16,777,216) characters or integers; more throws `RangeError` rather than exhausting memory.
 - `selectRandomElement` and `selectUniqueRandomElements` walk the array as 1.x did, drawing up to one number per element. `selectWeightedRandomElement` draws once.
 - The deprecated `generateRandomArrayOfUniqueIntegers` builds and shuffles the whole range, so a large `maxValue` costs time and memory; `getUniqueRandomIntegers` does not.
 

@@ -66,6 +66,21 @@ const flags: boolean[] = [rng.getRandomBool(), rng.getRandomBool(0.3), rng.choos
 const weighted: string = rng.selectWeightedRandomElement(['a', 'b'], [1, 3]);
 const picks: string[] = rng.selectUniqueRandomElements(['a', 'b', 'c'], 2);
 
+// 1.1.4 code that forwarded an optional flag, wrote SeededRandomUtilities.default for Node's ES module loader, or augmented the interface still compiles.
+function forwardCopy<T>(array: T[], copy?: boolean): T[] {
+  return rng.shuffle(array, copy);
+}
+
+// eslint-disable-next-line new-cap -- the property name 1.1.4 code used
+const viaDefault: SeededRandomUtilities = new SeededRandomUtilities.default('seed');
+
+declare module 'seeded-random-utilities' {
+  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions -- augmentation needs an interface
+  interface RandomUtilities {
+    augmentedByConsumer?: true;
+  }
+}
+
 // State round trip, the interface, and random as a plain function value.
 const resumed: SeededRandomUtilities = SeededRandomUtilities.fromState(rng.getState());
 const asInterface: RandomUtilities = rng;
@@ -89,4 +104,6 @@ export {
   resumed,
   asInterface,
   randomFunction,
+  forwardCopy,
+  viaDefault,
 };

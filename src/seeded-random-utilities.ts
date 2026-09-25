@@ -6,7 +6,7 @@ import {
   type Generator,
   type PRNG,
 } from './generators.ts';
-import {parseAlgorithm, seededGenerator} from './rand.ts';
+import {seededGenerator} from './rand.ts';
 import type {
   GeneratorState,
   RandomSource,
@@ -19,6 +19,9 @@ const DEFAULT_POOL: readonly string[] = [...'abcdefghijklmnopqrstuvwxyzABCDEFGHI
 
 // One draw is a 32-bit number, so it can reach at most 2^32 different integers.
 const MAX_SPAN = 4_294_967_296;
+
+// The most characters getRandomString builds, and the most integers getUniqueRandomIntegers returns (V8's Map holds at most 2^24 entries).
+const MAX_LENGTH = 16_777_216;
 
 // Array.isArray would narrow a readonly T[] to any[].
 const isArray = (value: unknown): boolean => Array.isArray(value);
@@ -39,16 +42,25 @@ function toRange(method: string, first: number, second: number | undefined): [mi
 function toIntegerRange(method: string, first: number, second: number | undefined, inclusive: boolean): {start: number; span: number} {
   const [min, max] = toRange(method, first, second);
   const start = Math.ceil(min);
-  const span = Math.floor(max) - start + (inclusive ? 1 : 0);
+  const end = Math.floor(max);
+  const span = end - start + (inclusive ? 1 : 0);
   if (span < 1) {
-    throw new RangeError(`${method}: the range from ${min} to ${max} holds no integer`);
+    throw new RangeError(`${method}: there is no integer n with ${start} <= n ${inclusive ? '<=' : '<'} ${end} (bounds are rounded inwards)`);
   }
 
+  checkIntegerSpan(method, start, span);
+  return {start, span};
+}
+
+// One draw reaches at most 2^32 integers, and past 2^53 a number cannot hold every integer.
+function checkIntegerSpan(method: string, start: number, span: number): void {
   if (span > MAX_SPAN) {
     throw new RangeError(`${method}: the range holds ${span} integers, more than the 2^32 that one draw can reach`);
   }
 
-  return {start, span};
+  if (!Number.isSafeInteger(start) || !Number.isSafeInteger(start + span - 1)) {
+    throw new RangeError(`${method}: the range must lie between -(2^53 - 1) and 2^53 - 1`);
+  }
 }
 
 function toCharacters(method: string, pool: string | undefined): readonly string[] {
@@ -85,6 +97,13 @@ rng.shuffle(['a', 'b', 'c']);
 */
 export class SeededRandomUtilities implements RandomUtilities {
   /**
+  The class itself, so that 1.1.4 code written for Node's ES module loader, which got the CommonJS exports object as the default import and wrote `new SeededRandomUtilities.default(seed)`, keeps working.
+
+  @deprecated Use the class directly: `new SeededRandomUtilities(seed)`. Removed in 3.0.0.
+  */
+  static readonly default: typeof SeededRandomUtilities = SeededRandomUtilities;
+
+  /**
   A generator that continues exactly where `getState()` was called, even in another process or on another machine.
 
   @throws {TypeError} When `state` is not something `getState()` returned.
@@ -96,30 +115,29 @@ export class SeededRandomUtilities implements RandomUtilities {
       throw new TypeError('fromState: expected an object that getState() returned');
     }
 
-    const rng = new SeededRandomUtilities(undefined, algorithm);
-    rng.#generator = createGenerator(algorithm, words);
-    rng.#source = rng.#generator;
+    const rng = new SeededRandomUtilities();
+    const generator = createGenerator(algorithm, words);
+    rng.#seeded = {algorithm, generator};
+    rng.#source = generator;
     return rng;
   }
 
   #source: RandomSource;
-  #generator: Generator | undefined;
-  readonly #algorithm: PRNG;
+  #seeded: {readonly algorithm: PRNG; readonly generator: Generator} | undefined;
 
   /**
   A generator for the seed and algorithm, drawing numbers exactly as 1.1.4 did.
 
   @param seed - A string or a finite number (`42` and `'42'` give the same sequence), or any object whose `next()` returns numbers in [0, 1), such as `Rand`. Without a seed (undefined, or null from JavaScript) the numbers come from Math.random, as in 1.1.4.
-  @param prng - The algorithm, one of `PRNG`: sfc32 when omitted.
-  @throws {TypeError} For a seed of any other type, or an unknown algorithm.
+  @param prng - The algorithm, one of `PRNG`: sfc32 when omitted. Only used, and only checked, when there is a seed to hash, as in 1.1.4.
+  @throws {TypeError} For a seed of any other type, or an unknown algorithm with a seed.
   */
   constructor(seed?: Seed | RandomSource, prng?: PRNG) {
-    this.#algorithm = parseAlgorithm(prng);
     if (isRandomSource(seed)) {
       this.#source = seed;
     } else {
-      this.#generator = seededGenerator(seed, this.#algorithm);
-      this.#source = this.#generator ?? unseeded;
+      this.#seeded = seededGenerator(seed, prng);
+      this.#source = this.#seeded?.generator ?? unseeded;
     }
 
     // Bound, so `rng.random` can be passed to anything that takes a Math.random-style function.
@@ -218,23 +236,19 @@ export class SeededRandomUtilities implements RandomUtilities {
   }
 
   /**
-  A string of `length` characters, each drawn from `pool` as `getRandomChar(pool)` draws it.
+  A string of `length` characters (at most 2^24), each drawn from `pool` as `getRandomChar(pool)` draws it.
 
-  @throws {RangeError} When length is not a whole number of 0 or more, or pool is empty.
+  @throws {RangeError} When length is not a whole number from 0 to 2^24, or pool is empty.
   @throws {TypeError} When pool is not a string.
   */
   getRandomString(length: number, pool?: string): string {
-    if (!Number.isSafeInteger(length) || length < 0) {
-      throw new RangeError('getRandomString: length must be a whole number of 0 or more');
+    // The cap turns a length that would exhaust the heap, and crash the process, into an error the caller can catch.
+    if (!Number.isSafeInteger(length) || length < 0 || length > MAX_LENGTH) {
+      throw new RangeError('getRandomString: length must be a whole number from 0 to 2^24');
     }
 
     const characters = toCharacters('getRandomString', pool);
-    let text = '';
-    for (let index = 0; index < length; index++) {
-      text += characters[Math.floor(this.random() * characters.length)]!;
-    }
-
-    return text;
+    return Array.from({length}, () => characters[Math.floor(this.random() * characters.length)]!).join('');
   }
 
   /**
@@ -277,8 +291,14 @@ export class SeededRandomUtilities implements RandomUtilities {
         break;
       }
 
+      const remainingItems = length - index;
+      // Only an array-like with a fractional length gets here; 1.1.4 stopped at the same point.
+      if (remainingItems < 1) {
+        break;
+      }
+
       // Selection sampling (Knuth's Algorithm S): take each element with probability picks left / elements left.
-      if (!this.chooseBooleanRandomlyWithProbability(length - index, remainingPicks)) {
+      if (!this.chooseBooleanRandomlyWithProbability(remainingItems, remainingPicks)) {
         continue;
       }
 
@@ -345,15 +365,15 @@ export class SeededRandomUtilities implements RandomUtilities {
   getUniqueRandomIntegers(amount: number, max: number): number[];
   getUniqueRandomIntegers(amount: number, min: number, max: number): number[];
   getUniqueRandomIntegers(amount: number, first: number, second?: number): number[] {
-    if (!Number.isSafeInteger(amount) || amount < 0) {
-      throw new RangeError('getUniqueRandomIntegers: amount must be a whole number of 0 or more');
+    if (!Number.isSafeInteger(amount) || amount < 0 || amount > MAX_LENGTH) {
+      throw new RangeError('getUniqueRandomIntegers: amount must be a whole number from 0 to 2^24');
     }
 
     const [min, max] = toRange('getUniqueRandomIntegers', first, second);
     const start = Math.ceil(min);
     const span = Math.max(Math.floor(max) - start, 0);
-    if (span > MAX_SPAN) {
-      throw new RangeError(`getUniqueRandomIntegers: the range holds ${span} integers, more than the 2^32 that one draw can reach`);
+    if (span > 0) {
+      checkIntegerSpan('getUniqueRandomIntegers', start, span);
     }
 
     if (amount > span) {
@@ -377,7 +397,7 @@ export class SeededRandomUtilities implements RandomUtilities {
   */
   shuffle(text: string, copy?: boolean): string;
   shuffle<T>(array: readonly T[]): T[];
-  shuffle<T>(array: T[], copy: boolean): T[];
+  shuffle<T>(array: T[], copy?: boolean): T[];
   shuffle<T>(array: readonly T[] | string, copy = true): T[] | string {
     // 1.1.4 returned any falsy value, such as null or an empty string, as it was.
     // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
@@ -386,8 +406,9 @@ export class SeededRandomUtilities implements RandomUtilities {
     }
 
     const isText = typeof array === 'string';
-    // A string splits into code points; an array is copied, or shuffled in place when copy is false.
-    const result: unknown[] = isText || copy ? [...array as Iterable<unknown>] : array as unknown[];
+    // A string splits into code points. An array is copied with slice, as 1.1.4 copied it (which also takes array-likes), or shuffled in place when copy is false.
+    const copied = (): unknown[] => Array.prototype.slice.call(array) as unknown[];
+    const result: unknown[] = isText ? [...array] : (copy ? copied() : array as unknown[]);
     let {length} = result;
     while (length > 0) {
       const random = Math.floor(this.random() * length);
@@ -401,10 +422,10 @@ export class SeededRandomUtilities implements RandomUtilities {
   }
 
   /**
-  True with probability picks / itemCount: `random() * itemCount < picks`.
+  True with probability picks / itemCount: `next() * itemCount < picks`, drawn from the generator itself, as in 1.1.4 (a subclass's `random()` does not change it).
   */
   chooseBooleanRandomlyWithProbability(itemCount: number, picks = 1): boolean {
-    return this.random() * itemCount < picks;
+    return this.#source.next() * itemCount < picks;
   }
 
   /**
@@ -413,11 +434,11 @@ export class SeededRandomUtilities implements RandomUtilities {
   @throws {TypeError} When the instance has no seed (it uses Math.random) or draws from an object passed to the constructor.
   */
   getState(): GeneratorState {
-    if (this.#generator === undefined) {
+    if (this.#seeded === undefined) {
       throw new TypeError('getState: only a generator created from a seed or a state has a state to export');
     }
 
-    return {algorithm: this.#algorithm, state: this.#generator.state()};
+    return {algorithm: this.#seeded.algorithm, state: this.#seeded.generator.state()};
   }
 
   /**

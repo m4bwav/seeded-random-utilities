@@ -44,10 +44,10 @@ for (const {name, lib} of builds) {
       }
     });
 
-    test('any object with next() is a source; the algorithm argument is then only checked', () => {
+    test('any object with next() is a source, and the algorithm argument is then ignored, as in 1.1.4', () => {
       const rng = new SeededRandomUtilities(fixed(0.25, 0.5));
       assert.deepEqual(draws(rng, 2), [0.25, 0.5]);
-      assert.throws(() => new SeededRandomUtilities(fixed(0.25), 'nope'), TypeError);
+      assert.equal(new SeededRandomUtilities(fixed(0.25), 'nope').random(), 0.25);
     });
 
     test('random is bound, so it can be passed as a Math.random-style function', () => {
@@ -110,7 +110,8 @@ for (const {name, lib} of builds) {
       for (const algorithm of ['SFC32', 'xoshiro128**', '', 0, {}]) {
         assert.throws(() => new SeededRandomUtilities('1234', algorithm), {name: 'TypeError', message: /Unknown algorithm/u});
         assert.throws(() => new Rand('1234', algorithm), TypeError);
-        assert.throws(() => new SeededRandomUtilities(undefined, algorithm), TypeError);
+        // Without a seed nothing is hashed, so the algorithm is not used or checked, as in 1.1.4.
+        withMathRandom(0.5, () => assert.equal(new SeededRandomUtilities(undefined, algorithm).random(), 0.5));
       }
     });
   });
@@ -138,7 +139,7 @@ for (const {name, lib} of builds) {
         assert.throws(() => rng[method](NaN), {name: 'TypeError', message: /finite numbers/u});
         assert.throws(() => rng[method]('10'), TypeError);
         assert.throws(() => rng[method](1, Infinity), TypeError);
-        assert.throws(() => rng[method](10, 0), {name: 'RangeError', message: /holds no integer/u});
+        assert.throws(() => rng[method](10, 0), {name: 'RangeError', message: /no integer/u});
         assert.throws(() => rng[method](-(2 ** 32), 2 ** 32), {name: 'RangeError', message: /2\^32/u});
       }
 
@@ -291,6 +292,80 @@ for (const {name, lib} of builds) {
       assert.deepEqual([...text].toSorted((a, b) => a.localeCompare(b)), [...'seeded🎲'].toSorted((a, b) => a.localeCompare(b)));
       assert.equal(new SeededRandomUtilities('shuffle').shuffle(null), null);
       assert.equal(new SeededRandomUtilities('shuffle').shuffle(''), '');
+    });
+  });
+
+  describe(`1.1.4 edge cases and limits, from the review of pull request #17 (${name} build)`, () => {
+    test('shuffle copies array-likes with slice, as 1.1.4 did', () => {
+      const shuffled = new SeededRandomUtilities('like').shuffle({
+        length: 3, 0: 'x', 1: 'y', 2: 'z',
+      });
+      assert.ok(Array.isArray(shuffled));
+      assert.deepEqual(shuffled.toSorted((a, b) => a.localeCompare(b)), ['x', 'y', 'z']);
+      for (const notArrayLike of [new Set([1, 2, 3]), 5, {}]) {
+        const rng = new SeededRandomUtilities('like');
+        assert.deepEqual(rng.shuffle(notArrayLike), []);
+        assert.equal(rng.random(), new SeededRandomUtilities('like').random(), 'no draws');
+      }
+    });
+
+    test('selectUniqueRandomElements stops at a fractional length, as 1.1.4 did', () => {
+      const picked = new SeededRandomUtilities('like').selectUniqueRandomElements({
+        length: 2.5, 0: 'a', 1: 'b', 2: 'c',
+      }, 3);
+      assert.deepEqual(picked, ['a', 'b']);
+    });
+
+    test('chooseBooleanRandomlyWithProbability draws from the generator itself, so a subclass\'s random() does not change it', () => {
+      class Fixed extends SeededRandomUtilities {
+        random() {
+          return 0.5;
+        }
+      }
+
+      const reference = new SeededRandomUtilities('1234');
+      const expected = Array.from({length: 8}, () => reference.chooseBooleanRandomlyWithProbability(10, 3));
+      const rng = new Fixed('1234');
+      assert.deepEqual(Array.from({length: 8}, () => rng.chooseBooleanRandomlyWithProbability(10, 3)), expected);
+    });
+
+    test('a String object seeds like its string, as in 1.1.4', () => {
+      // eslint-disable-next-line no-new-wrappers, unicorn/new-for-builtins
+      const wrapped = new String('abc');
+      assert.deepEqual(draws(new SeededRandomUtilities(wrapped), 4), draws(new SeededRandomUtilities('abc'), 4));
+    });
+
+    test('the static default is the class, for 1.1.4 code that wrote new SeededRandomUtilities.default(seed)', () => {
+      assert.equal(SeededRandomUtilities.default, SeededRandomUtilities);
+      // eslint-disable-next-line new-cap -- the property name 1.1.4 code used
+      assert.equal(new SeededRandomUtilities.default('1234').random(), 0.3111365893855691);
+    });
+
+    test('PRNG is frozen, so no code can change what a name means', () => {
+      assert.ok(Object.isFrozen(PRNG));
+      assert.throws(() => {
+        PRNG.sfc32 = 'xoshiro128ss';
+      }, TypeError);
+    });
+
+    test('integer ranges must lie within the safe integers', () => {
+      const rng = new SeededRandomUtilities('big');
+      assert.throws(() => rng.getRandomInteger(2 ** 53, (2 ** 53) + 4), {name: 'RangeError', message: /2\^53/u});
+      assert.throws(() => rng.getRandomIntegerInclusive(-(2 ** 53), -(2 ** 53) + 2), RangeError);
+      assert.throws(() => rng.getUniqueRandomIntegers(4, 2 ** 53, (2 ** 53) + 4), RangeError);
+      assert.equal(new SeededRandomUtilities(fixed(HIGHEST)).getRandomInteger((2 ** 53) - 11, (2 ** 53) - 1), (2 ** 53) - 2);
+    });
+
+    test('getRandomString and getUniqueRandomIntegers refuse more than 2^24 results instead of exhausting the heap', () => {
+      const rng = new SeededRandomUtilities('big');
+      assert.throws(() => rng.getRandomString((2 ** 24) + 1), RangeError);
+      assert.throws(() => rng.getUniqueRandomIntegers((2 ** 24) + 1, 2 ** 32), RangeError);
+    });
+
+    test('fromState refuses sparse arrays and a mulberry32 counter no generator can reach', () => {
+      // eslint-disable-next-line no-sparse-arrays
+      assert.throws(() => SeededRandomUtilities.fromState({algorithm: 'sfc32', state: [1, , 3, 4]}), TypeError);
+      assert.throws(() => SeededRandomUtilities.fromState({algorithm: 'mulberry32', state: [2 ** 84]}), TypeError);
     });
   });
 
