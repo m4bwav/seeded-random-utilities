@@ -4,7 +4,7 @@ Updated 2026-09-25: seeded-random-utilities 2.0.0 is released and verified, and 
 
 ## Current state
 
-- **npm.** `latest` is 2.0.0, approved by Mark on 2026-09-25, with SLSA provenance and no dependencies; `next` is 2.0.0-beta.1. GitHub Releases v2.0.0 and v2.0.0-beta.1 (a prerelease) exist. master holds the release, and CI is green on every push.
+- **npm.** `latest` is 2.0.0, approved by Mark on 2026-09-25, with SLSA provenance and no dependencies. `latest` is the only dist-tag (checked 2026-09-28; `next` pointed at 2.0.0-beta.1 until at least 2026-09-25). GitHub Releases v2.0.0 and v2.0.0-beta.1 (a prerelease) exist. master holds the release, and CI is green on every push.
 - **Verified from the registry.** verify-published run 36202020534 was green in all 15 jobs (Node 20 to 26 on Linux, Windows and macOS, Bun, Deno). Locally, `npm audit signatures` verified the signature and the attestation, and require and import give 1.1.4's numbers.
 - **GitHub:**
   - 0 Dependabot alerts, no open pull requests or issues, only `master`, 0 webhooks.
@@ -22,9 +22,10 @@ Updated 2026-09-25: seeded-random-utilities 2.0.0 is released and verified, and 
 4. **3.0.0**, not before Node 22 reaches end of life on 2027-04-30:
    - Remove the deprecated `getRandomIntegar`, `getRandomArbitrary`, `getRandomIntInclusive`, `generateRandomArrayOfUniqueIntegers` and the static `default`.
    - Raise `engines` to Node 24, as get-title-at-url's v4 plan does.
-5. **`next` stays on 2.0.0-beta.1.** Removing the tag needs an npm login with 2FA, and a 3.0.0 beta will move it anyway.
+5. **The `next` tag is gone** (npm dist-tags on 2026-09-28 list only `latest`); a 3.0.0 beta would add it again.
 6. **Optional, Mark:** revoke Codecov under Authorized OAuth Apps at github.com/settings/applications, and remove any unused SonarCloud or Travis CI app.
 7. **Optional Stage 5, not planned:** JSR, or a seeded-random playground page on markdavidrogers.com.
+8. **The wiki** (https://github.com/m4bwav/seeded-random-utilities/wiki, nine pages, 2026-09-28) is updated at each release with the wikiwright skill's update mode: [notes/2026-09-28-github-wiki.md](notes/2026-09-28-github-wiki.md) has the procedure, and the verification script and its seeded output are beside it.
 
 ## Next single action
 
