@@ -1,6 +1,7 @@
-# Every push to master and every pull request: lint and types, the package's shape and coverage, the suites (the 1.1.4
-# golden cases among them) and the consumer fixtures on each Node line (Linux) and on Windows and macOS, and the
-# fixtures, golden cases included, under Bun and Deno.
+# Every push to master and every pull request: lint and types, the golden recordings unchanged, the package's shape and
+# coverage, the packed tarball's files, the suites (the golden cases of 1.1.4 and 2.0.0 among them) and the consumer
+# fixtures on each Node line (Linux) and on Windows and macOS, and the fixtures, 1.1.4's golden cases included, under Bun
+# and Deno.
 # The ruleset on master requires the final `ci` job, which passes only when every other job passed.
 name: ci
 
@@ -15,7 +16,8 @@ permissions:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  # Only pull request runs are cancelled: every master commit keeps its ci result, which release.yml waits for (L-120).
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 defaults:
   run:
@@ -29,7 +31,11 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          # The whole history: the next step finds the commit that added each golden file.
+          fetch-depth: 0
           persist-credentials: false
+      - name: The golden recordings, capture scripts and codec are unchanged since the commits that added them
+        run: test/golden/check-untouched.sh
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 24
@@ -59,6 +65,11 @@ jobs:
       - run: npm run build
       - name: publint, attw and the pack file list
         run: npm run check
+      - name: The packed tarball's files, size and version (the check release.yml runs on the tarball it stages)
+        run: |
+          npm pack --ignore-scripts
+          version=$(node -p "require('./package.json').version")
+          node test/package/check-tarball.mjs "seeded-random-utilities-$version.tgz" "$version"
       - name: Coverage of src/ (95 percent lines, 90 percent branches)
         run: npm run coverage
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1

@@ -6,7 +6,8 @@ const xoConfig = [
     // The type fixture imports the built package, so it only resolves after a build; the consumer fixtures type-check it against the installed tarball instead.
     // The capture scripts run in scratch projects against the old packages and are kept exactly as they were run.
     // The golden JSON files are captured data: 1.1.4.json holds the lone surrogates 1.1.4's string shuffle produced, as evidence.
-    ignores: ['ai-docs/**', 'test/consumers/types/**', 'test/golden/*.cjs', 'test/golden/*.json'],
+    // release-notes.md is written by release.yml from CHANGELOG.md before it lints; its link definition may go unused there (L-039).
+    ignores: ['ai-docs/**', 'release-notes.md', 'test/consumers/types/**', 'test/golden/*.cjs', 'test/golden/*.json'],
   },
   {
     files: ['**/*.md'],
@@ -18,6 +19,8 @@ const xoConfig = [
   {
     space: 2,
     rules: {
+      // Promise.withResolvers arrived in Node 22; the package and its tests run on Node 20 (xo --fix once rewrote a test to it, L-049).
+      'unicorn/prefer-promise-with-resolvers': 'off',
       // The `v` flag is a syntax error in Safari 16 and Chrome before 112, which would stop the library loading at all in those browsers; `u` works everywhere.
       'require-unicode-regexp': ['error', {requireFlag: 'u'}],
     },

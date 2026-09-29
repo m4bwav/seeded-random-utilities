@@ -4,26 +4,11 @@ import {access, readFile} from 'node:fs/promises';
 import {test} from 'node:test';
 import {fileURLToPath} from 'node:url';
 import vm from 'node:vm';
+import {PUBLISHED_FILES, TARBALL_BUDGET} from './published-files.js';
 
 const root = fileURLToPath(new URL('../..', import.meta.url));
 const read = file => readFile(new URL(`../../${file}`, import.meta.url), 'utf8');
 const packageJson = JSON.parse(await read('package.json'));
-
-const PUBLISHED_FILES = [
-  'CHANGELOG.md',
-  'LICENSE',
-  'README.md',
-  'dist/index.cjs',
-  'dist/index.cjs.map',
-  'dist/index.d.cts',
-  'dist/index.d.mts',
-  'dist/index.mjs',
-  'dist/index.mjs.map',
-  'package.json',
-];
-
-// About 44 kB after the review fixes (2026-09-25), most of it the two source maps, which carry the TypeScript source for debuggers and bundlers.
-const TARBALL_BUDGET = 50_000;
 
 test('the tarball holds exactly the built files and the docs, and stays under the size budget', async () => {
   // --ignore-scripts: prepack would rebuild dist/ while the other test files are reading it.
