@@ -1,6 +1,18 @@
 # Handoff
 
-Updated 2026-09-29: a retrofit to the package-modernize standard is in progress on the branch `v2-retrofit` ([plans/2026-09-29-retrofit-and-2.0.1-release.md](plans/2026-09-29-retrofit-and-2.0.1-release.md)). Phase 0 is done ([notes/2026-09-29-phase-0-gap-audit.md](notes/2026-09-29-phase-0-gap-audit.md), the third golden recording `test/golden/2.0.0-npm.json`); the plan waits for Mark's rulings on R1 to R12. Below, the state of 2.0.0 and the standing work, as before. Read [log.md](log.md) for evidence.
+Updated 2026-09-29: the retrofit to the package-modernize standard ([plans/2026-09-29-retrofit-and-2.0.1-release.md](plans/2026-09-29-retrofit-and-2.0.1-release.md)) has reached the pull request stop. Pull request #18 (branch `v2-retrofit`) is reviewed, its 12 review findings are fixed and CI is green (run 36598304912 on 1896ce2). Mark ruled "yes do them all" on 2026-09-29: every recommendation R1 to R12 stands, the tag ruleset (applied, 24191908), the 1.0.0 to 1.1.3 deprecation after 2.0.1 is verified, and moving `next` to 2.0.1. Below the retrofit steps, the state of 2.0.0 and the standing work. Read [log.md](log.md) for evidence.
+
+## The retrofit: what is left, in order
+
+1. Mark reviews and merges #18. Read the method and SHA back: `gh pr view 18 -R m4bwav/seeded-random-utilities --json mergeCommit,mergedAt`. Wait for ci's push run on master to pass.
+2. Rehearsal: on master, CHANGELOG heading stays `## [2.0.1] - Unreleased`; `bash <skill>/scripts/preflight-tag-npm.sh 2.0.1-beta.1 .` must print READY; `npm version 2.0.1-beta.1` and `git push --follow-tags`. release.yml waits for ci's push run on that commit (this is the first real test of the gate, L-126 in the skill), then stages under `next`. `bash <skill>/scripts/watch-run.sh m4bwav/seeded-random-utilities release.yml`. **Stop**: Mark approves in npmjs.com, package settings, Staged Packages tab, with 2FA. Then `bash <skill>/scripts/verify-registry-npm.sh seeded-random-utilities 2.0.1-beta.1 m4bwav/seeded-random-utilities` and `gh workflow run verify-published.yml -f version=2.0.1-beta.1`.
+3. Release: date the heading `## [2.0.1] - YYYY-MM-DD`, lint and test, preflight READY, `npm version 2.0.1`, push, **stop** for the approval, the same verification, `gh release view v2.0.1`, `node <skill>/scripts/check-readme-images.mjs --registry npm` on the README from the published tarball.
+4. npm, as Mark ruled: `npm deprecate seeded-random-utilities@"<1.1.4" "1.0.0 to 1.1.3 shuffle with Math.random, so shuffle and generateRandomArrayOfUniqueIntegers ignore the seed. Use 2.x, which keeps 1.1.4's sequences, or 1.1.4."` and `npm dist-tag add seeded-random-utilities@2.0.1 next` (Mark stays logged in; npm answers with a browser link he approves). Read back: `npm view seeded-random-utilities@1.1.3 deprecated`, `npm view seeded-random-utilities@1.1.4 deprecated` (empty), `bash <skill>/scripts/check-next-tag-npm.sh seeded-random-utilities`.
+5. Wiki with wikiwright's Update mode for 2.0.1 ([notes/2026-09-28-github-wiki.md](notes/2026-09-28-github-wiki.md) has the procedure). Corrections the wiki needs: Versions and upgrading says 1.1.4 is "the same code as 1.1.3" and that 1.1.0 to 1.1.3 export `RandomUtilities` (both wrong: 1.0.0 to 1.1.3 shuffle with Math.random and export `ISeededRandomUtilities`; 1.1.4 changed both); the FAQ and Errors pages can take the new README sentences and the overflowing-weights message; the Development page's test count (2255).
+6. Records: the package-modernization pull request (the kickoff's status line and corrections, the inventory row, the Wikis row), and the skill's pull requests m4bwav/package-modernize#17 (the other session's consolidation) then #18 (this run's C-20260929-4, stacked on #17); after the rehearsal, L-126 in the skill can be promoted.
+7. The evergreen upkeep the SessionStart hooks asked for on 2026-09-29 (refresh game-snapshots, context-health, everlast-protocol, unity-agent-cli; the evergreen plugin's verify-at-use claims), and package-modernize's research refresh if the run reaches 2026-10-05.
+
+`<skill>` is `C:/Users/m4bwa/.claude/skills/package-modernize` (pull it first with `git -C D:/m4bwa/Claude/Projects/Ai/package-modernize pull --ff-only`).
 
 ## Current state
 
@@ -29,7 +41,7 @@ Updated 2026-09-29: a retrofit to the package-modernize standard is in progress 
 
 ## Next single action
 
-Get Mark's rulings on the retrofit plan's decisions R1 to R12 (silence means the recommendations stand), then run Phase 2 on `v2-retrofit`.
+Wait for Mark to merge pull request #18, then step 2 of "The retrofit: what is left" above.
 
 ## Dead ends hit
 

@@ -15,7 +15,7 @@ The retrofit path of the package-modernize skill (references/retrofit.md, its fi
 
 ## Status
 
-Active, 2026-09-29: Phase 0 done (gap audit, third golden recording committed on `v2-retrofit`). Waiting for Mark's rulings on the decisions below.
+Active, 2026-09-29: Phases 0 to 3 done. Mark ruled "yes do them all" (every recommendation stands). Pull request #18 is open, reviewed and green (CI run 36598304912 on 1896ce2); the tag ruleset is applied. Waiting for Mark's review and merge of #18.
 
 ## Goal
 
@@ -67,16 +67,16 @@ See the audit note's tables. In short: 2.0.0 latest with provenance; 1.0.0 to 1.
 - [x] Recordings replayed against today's npm packages; 1.0.0 to 1.1.3 measured; 1.1.4 loaded on Node 20 to 26
 - [x] Third recording committed: test/golden/capture-2.0.0-npm.cjs, codec.cjs, 2.0.0-npm.json (identical on Node 20 to 26 and Deno; Bun differs in one engine message)
 ### Phase 1: plan
-- [ ] This plan. **Stop**: Mark rules on R1 to R12, and answers the one question (the tag ruleset, the deprecation and the `next` tag).
+- [x] This plan. **Stop**: Mark rules on R1 to R12, and answers the one question (the tag ruleset, the deprecation and the `next` tag).
 ### Phase 2: retrofit on v2-retrofit
-- [ ] Golden suite replays 2.0.0-npm.json on both builds; commit; canary: a planted line in `src/` turns it red, reverted, green (both runs logged); `git diff --exit-code` on the golden files against their commits
-- [ ] Workflows, `.npmrc`, Dependabot, zizmor, xo and `.gitignore` from the templates; each new CI check run locally with `bash -e -o pipefail` on the real tarball with a right and a wrong expectation (L-103); CI's exact commands locally (L-101)
-- [ ] README, CHANGELOG (2.0.1 section), AGENTS.md
-- [ ] actionlint with shellcheck, zizmor, check-workflow-shell.py, check-readme-images.mjs --registry npm clean; placeholders grepped
-- [ ] Pushed; pull request with a "For review" list
+- [x] Golden suite replays 2.0.0-npm.json on both builds; commit; canary: a planted line in `src/` turns it red, reverted, green (both runs logged); `git diff --exit-code` on the golden files against their commits
+- [x] Workflows, `.npmrc`, Dependabot, zizmor, xo and `.gitignore` from the templates; each new CI check run locally with `bash -e -o pipefail` on the real tarball with a right and a wrong expectation (L-103); CI's exact commands locally (L-101)
+- [x] README, CHANGELOG (2.0.1 section), AGENTS.md
+- [x] actionlint with shellcheck, zizmor, check-workflow-shell.py, check-readme-images.mjs --registry npm clean; placeholders grepped
+- [x] Pushed; pull request #18 with a "For review" list
 ### Phase 3: review
-- [ ] Independent read-only review (prompts/review-subagent.md) with a differential of the new build against the published 2.0.0 over generated inputs on every supported Node line; findings fixed or answered
-- [ ] Tag ruleset applied (R6) before the pull request stop. **Stop.**
+- [x] Independent read-only review (prompts/review-subagent.md: 977,328 comparisons per Node line, 0 differences; 12 findings fixed in 1896ce2 and summarised on #18) with a differential of the new build against the published 2.0.0 over generated inputs on every supported Node line; findings fixed or answered
+- [x] Tag ruleset applied (R6, ruleset 24191908) before the pull request stop. **Stop.**
 ### Phase 4: merge
 - [ ] CI green (run id); merged by Mark or with his go; method and SHA read back
 ### Phase 5 and 6: rehearsal and release
@@ -120,4 +120,4 @@ No tokens exist (trusted publishing, staged, no environment, workflow release.ym
 
 ## Next single action
 
-Mark rules on R1 to R12 and answers the one question in the stop message.
+Mark reviews and merges pull request #18; then read the merge method and SHA back and start Phase 5 (see HANDOFF.md).
