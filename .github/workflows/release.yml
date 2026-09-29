@@ -1,6 +1,10 @@
-# A tag v<version> (pushed by `npm version` and `git push --follow-tags`) builds and tests the package, stages it on npm
-# through trusted publishing, and creates the GitHub Release. Nothing goes live until Mark approves the staged version
-# on npmjs.com with two-factor authentication; then run verify-published.yml with the version.
+# A tag v<version> (pushed by `npm version` and `git push --follow-tags`) on a master commit whose ci passed builds and tests
+# the package, packs it once, checks that tarball's files and runs the consumer fixtures on it (Linux with Node 24 and 20,
+# Windows), stages exactly that tarball on npm through trusted publishing, and creates the GitHub Release. Nothing goes live
+# until Mark approves the staged version on npmjs.com with two-factor authentication; then run verify-published.yml
+# with the version.
+# `npm version` pushes the version commit and its tag together, so ci on that commit is still running when this starts: the
+# build job waits for it (up to 30 minutes) and stops unless it succeeded (L-120, L-127 in package-modernize).
 # No npm token exists anywhere: npm exchanges the job's OIDC token for a short-lived one, and adds provenance itself.
 # The trusted publisher on npmjs.com names this file, release.yml; renaming it breaks publishing.
 name: release
@@ -24,14 +28,20 @@ jobs:
   build:
     name: build and test the release
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 50
+    permissions:
+      contents: read
+      actions: read
     outputs:
       version: ${{ steps.version.outputs.version }}
       dist-tag: ${{ steps.version.outputs.dist-tag }}
       prerelease: ${{ steps.version.outputs.prerelease }}
+      tarball: ${{ steps.version.outputs.tarball }}
+      sha512: ${{ steps.tarball.outputs.sha512 }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          fetch-depth: 0
           persist-credentials: false
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
@@ -56,6 +66,14 @@ jobs:
             echo "prerelease=false" >> "$GITHUB_OUTPUT"
           fi
           echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "tarball=seeded-random-utilities-$version.tgz" >> "$GITHUB_OUTPUT"
+      - name: The tagged commit is on master
+        run: |
+          git fetch --no-tags origin master
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" FETCH_HEAD; then
+            echo "::error::$GITHUB_SHA is not on master; tag only commits on master"
+            exit 1
+          fi
       - name: Release notes from the changelog
         env:
           VERSION: ${{ steps.version.outputs.version }}
@@ -82,32 +100,122 @@ jobs:
             exit 1
           fi
           printf '%s\n' "$notes" > release-notes.md
-      - run: npm ci
+      - name: ci passed on the tagged commit's push to master (waits up to 30 minutes for the run the same push started)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Only ci.yml's run for the push of this commit to master counts: a pull request run on the same commit tested a merge
+          # ref, and a cancelled one says nothing. The newest such run decides. One verdict word from gh's own jq, compared
+          # exactly, so a missing tool or an API error stops the job instead of passing it (L-128).
+          verdict='.workflow_runs | if length == 0 then "waiting" else (max_by(.created_at) | if .status != "completed" then "waiting" elif .conclusion == "success" then "success" else "failed" end) end'
+          for attempt in $(seq 1 60); do
+            state=$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/ci.yml/runs?head_sha=$GITHUB_SHA&event=push&branch=master&per_page=20" --jq "$verdict") || state=error
+            case "$state" in
+              success)
+                echo "ci succeeded on $GITHUB_SHA"
+                exit 0
+                ;;
+              failed)
+                echo "::error::ci's push run on $GITHUB_SHA finished without success"
+                exit 1
+                ;;
+              waiting)
+                echo "waiting for ci on $GITHUB_SHA (attempt $attempt of 60)"
+                sleep 30
+                ;;
+              *)
+                echo "::error::could not read the ci check runs of $GITHUB_SHA ($state)"
+                exit 1
+                ;;
+            esac
+          done
+          echo "::error::no finished ci check on $GITHUB_SHA after 30 minutes"
+          exit 1
+      - run: npm ci --ignore-scripts
       - run: npm run lint
       - run: npm run typecheck
-      - run: npm test
+      - name: The golden recordings, capture scripts and codec are unchanged since the commits that added them
+        run: test/golden/check-untouched.sh
+      # check comes before the tests: attw packs with lifecycle scripts, and prepack rebuilds dist/. The dist/ that npm test
+      # builds and tests is the one packed below.
       - name: publint, attw and the pack file list
         run: npm run check
-      - name: Consumer fixtures from the packed tarball
-        run: npm run test:consumers
-      - name: Pack the tarball that gets staged
+      - run: npm test
+      - name: Pack the tarball that gets staged, once, from the dist/ the tests ran on
         run: npm pack --ignore-scripts
+      - name: The tarball's files, size and version, and its SHA-512 for the jobs that test and stage it
+        id: tarball
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          TARBALL: ${{ steps.version.outputs.tarball }}
+        run: |
+          node scripts/check-tarball.mjs "$TARBALL" "$VERSION"
+          echo "sha512=$(sha512sum "$TARBALL" | cut -d ' ' -f 1)" >> "$GITHUB_OUTPUT"
+      - name: Consumer fixtures on the tarball that gets staged
+        env:
+          CONSUMER_PACKAGE: ${{ github.workspace }}/${{ steps.version.outputs.tarball }}
+        run: node --test test/consumers/consumers.test.js
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: release
           path: |
-            seeded-random-utilities-${{ steps.version.outputs.version }}.tgz
+            ${{ steps.version.outputs.tarball }}
             release-notes.md
           if-no-files-found: error
 
-  publish:
-    name: stage on npm and create the GitHub Release
+  consumers:
+    name: consumers of the tarball to stage (Node ${{ matrix.node }}, ${{ matrix.os }})
     needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            node: 20
+          - os: windows-latest
+            node: 24
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      # The fixtures install TypeScript and the Node types at the versions the checkout locks.
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - run: npm ci --ignore-scripts
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: release
+      - name: Node ${{ matrix.node }} to run the fixtures
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ matrix.node }}
+          package-manager-cache: false
+      - name: The tarball is the one the build job tested (SHA-512), with the right files, size and version
+        env:
+          VERSION: ${{ needs.build.outputs.version }}
+          TARBALL: ${{ needs.build.outputs.tarball }}
+          SHA512: ${{ needs.build.outputs.sha512 }}
+        run: |
+          echo "$SHA512  $TARBALL" | sha512sum -c -
+          node scripts/check-tarball.mjs "$TARBALL" "$VERSION"
+      - name: Consumer fixtures on the tarball that gets staged
+        env:
+          CONSUMER_PACKAGE: ${{ github.workspace }}/${{ needs.build.outputs.tarball }}
+        run: node --test test/consumers/consumers.test.js
+
+  publish:
+    name: stage on npm
+    needs: [build, consumers]
     runs-on: ubuntu-24.04
     timeout-minutes: 10
-    # The only job with write permissions, and it runs no dependency code: it stages the tarball the build job tested.
+    # The only job that can publish (id-token: write), so it installs nothing, runs no dependency code and uses only
+    # first-party actions: it stages the tarball the build job tested. The GitHub Release is a separate job without id-token.
     permissions:
-      contents: write
+      contents: read
       id-token: write
     steps:
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
@@ -122,11 +230,26 @@ jobs:
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: release
-      - name: Stage on npm for Mark's approval
+      - name: Stage on npm for Mark's approval, only the tarball the build and consumers jobs tested (SHA-512)
         env:
-          VERSION: ${{ needs.build.outputs.version }}
+          TARBALL: ${{ needs.build.outputs.tarball }}
           DIST_TAG: ${{ needs.build.outputs.dist-tag }}
-        run: npm stage publish "./seeded-random-utilities-$VERSION.tgz" --tag "$DIST_TAG"
+          SHA512: ${{ needs.build.outputs.sha512 }}
+        run: |
+          echo "$SHA512  $TARBALL" | sha512sum -c -
+          npm stage publish "./$TARBALL" --tag "$DIST_TAG" --ignore-scripts
+
+  github-release:
+    name: GitHub Release
+    needs: [build, publish]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: release
       - name: GitHub Release with the changelog section
         env:
           GH_TOKEN: ${{ github.token }}

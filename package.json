@@ -30,9 +30,9 @@
   "scripts": {
     "build": "tsdown",
     "test": "npm run build && npm run test:dist",
-    "test:dist": "node --test test/golden/golden.test.js test/unit/api.test.js test/unit/generators.test.js test/unit/distribution.test.js test/package/shape.test.js",
+    "test:dist": "node --test test/golden/golden.test.js test/golden/golden-2.0.0-npm.test.js test/unit/api.test.js test/unit/edges.test.js test/unit/generators.test.js test/unit/distribution.test.js test/package/shape.test.js",
     "test:consumers": "npm run build && node --test test/consumers/consumers.test.js",
-    "coverage": "npm run build && c8 --check-coverage --lines 95 --branches 90 --exclude-after-remap --include \"src/**\" --reporter text --reporter lcov node --test test/golden/golden.test.js test/unit/api.test.js test/unit/generators.test.js test/unit/distribution.test.js",
+    "coverage": "npm run build && c8 --check-coverage --lines 95 --branches 90 --exclude-after-remap --include \"src/**\" --reporter text --reporter lcov node --test test/golden/golden.test.js test/golden/golden-2.0.0-npm.test.js test/unit/api.test.js test/unit/edges.test.js test/unit/generators.test.js test/unit/distribution.test.js",
     "lint": "xo",
     "typecheck": "tsc --noEmit",
     "check": "publint && attw --pack . && npm pack --dry-run",

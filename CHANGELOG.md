@@ -2,6 +2,21 @@
 
 All notable changes to this package. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the package follows [Semantic Versioning](https://semver.org/).
 
+## [2.0.1] - Unreleased
+
+The same code and the same answers as 2.0.0. This release corrects the documentation, which npm shows from the package, and changes how releases are made.
+
+### Fixed
+
+- README: "the same sequence in every version since 1.0" now says since 1.1.4 (see the 1.1.4 entry below). The sentence on bad arguments now matches what the methods throw: `getRandomFloat(5, 5)` returns 5, a length, an amount or a weight of the wrong type throws `RangeError`, and the constructor's messages and the three kept from 1.1.4 do not start with a method name. New notes: Yarn 4's Plug'n'Play needs `yarn node`; the ES module and CommonJS builds hold separate classes, so `instanceof` fails across them; a `String` object is a seed; `getState()` throws for a generator without a seed.
+- This changelog: the 1.1.4 entry, which called 1.1.4 a re-publish of 1.1.3, and the 1.1.0 to 1.1.3 entry, which put 1.1.4's interface rename there.
+
+### Changed (release process and tests; nothing in the package)
+
+- A release stages only a tarball that was checked: the tagged commit must be on master with a successful `ci` run; the tarball is packed once, its files, size and version are checked, and the consumer fixtures run on that file on Linux with Node 24 and 20 and on Windows. The job that stages it can only read the repository and request the publishing token, and runs nothing from dependencies; the GitHub Release is made by a separate job.
+- A third golden recording, taken from the published 2.0.0 on npm: 507 cases with edge inputs (NaN, -0, Infinity, wrong types, wrapper objects, Sets, lone surrogates), every error's class and message, how many numbers each call draws, and the export shape. CI also checks that no recording has changed since it was captured.
+- New dependency versions are installed only once they are three days old (`.npmrc`), and Dependabot waits seven days.
+
 ## [2.0.0] - 2026-09-25
 
 **Same seed, same sequence.** Every call that 1.1.4 handled returns exactly the same numbers in 2.0.0, for every algorithm and on every runtime; the tests check 322 cases recorded from the published 1.1.4. There are three exceptions, all inputs that 1.1.4 handled badly: `shuffle` on strings with characters outside the Basic Multilingual Plane (emoji), numbers used as seeds, and unknown algorithm names with a seed. A few rare call patterns also behave differently; they are listed under "Changed (breaking)".
@@ -63,16 +78,20 @@ These keep 1.1.4's behaviour for every input, and 3.0.0 removes them.
 
 ## [1.1.4] - 2019-11-25
 
-The same code as 1.1.3, published again.
+- `shuffle` draws from the seeded generator. 1.0.0 to 1.1.3 used `Math.random()` there, so `shuffle`, and `generateRandomArrayOfUniqueIntegers`, which calls it, gave different answers on every run for the same seed. Since 1.1.4 they are repeatable, and because a shuffle now consumes numbers, every number drawn after one differs from 1.1.3's (where a shuffle drew nothing from the seeded generator).
+- The interface type is exported as `RandomUtilities`; 1.0.0 to 1.1.3 exported it as `ISeededRandomUtilities`, so TypeScript code importing that name breaks.
+
+Until 2.0.1 this entry called 1.1.4 "the same code as 1.1.3, published again".
 
 ## 1.1.0 to 1.1.3 - 2019-11-24
 
-The interface is exported as `RandomUtilities`. Lint and spelling fixes, and README badges.
+README and package metadata only: their `dist/` is byte for byte 1.0.0's. (Until 2.0.1 this entry said the interface was exported as `RandomUtilities` from 1.1.0; that rename came in 1.1.4.)
 
 ## [1.0.0] - 2019-11-22
 
 First release: `SeededRandomUtilities` over rand-seed, with sfc32, mulberry32 and xoshiro128**.
 
+[2.0.1]: https://github.com/m4bwav/seeded-random-utilities/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/m4bwav/seeded-random-utilities/compare/171f15c...v2.0.0
 [1.1.4]: https://www.npmjs.com/package/seeded-random-utilities/v/1.1.4
 [1.0.0]: https://www.npmjs.com/package/seeded-random-utilities/v/1.0.0

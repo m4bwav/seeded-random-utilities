@@ -4,7 +4,7 @@
 [![CI](https://github.com/m4bwav/seeded-random-utilities/actions/workflows/ci.yml/badge.svg)](https://github.com/m4bwav/seeded-random-utilities/actions/workflows/ci.yml)
 [![npm downloads](https://img.shields.io/npm/dm/seeded-random-utilities.svg)](https://www.npmjs.com/package/seeded-random-utilities)
 
-Seeded random numbers, integers, booleans, characters, strings, picks, weighted picks and shuffles. **The same seed gives the same sequence** on every runtime and in every version since 1.0: save games, generated levels, test fixtures and simulations come out the same every time.
+Seeded random numbers, integers, booleans, characters, strings, picks, weighted picks and shuffles. **The same seed gives the same sequence** on every runtime and in every version since 1.1.4: save games, generated levels, test fixtures and simulations come out the same every time.
 
 - Five small, fast generators: sfc32 (the default), mulberry32 and xoshiro128**, plus reference versions of the last two.
 - TypeScript types, ES module and CommonJS builds, no dependencies.
@@ -43,9 +43,13 @@ const {SeededRandomUtilities, PRNG} = require('seeded-random-utilities');
 // require('seeded-random-utilities').default still works, as it did in 1.x.
 ```
 
+The ES module and CommonJS builds each hold their own copy of the class, so in a program that loads both, `instanceof` fails across them. Their numbers are identical, and a state saved from one resumes in the other.
+
 **Deno:** `import SeededRandomUtilities from 'npm:seeded-random-utilities';`
 
 **Bun:** `bun add seeded-random-utilities`, then import as above.
+
+**Yarn 4 with Plug'n'Play:** run your scripts with `yarn node`, which sets up the module resolution.
 
 **Browsers:** through any bundler, or as an ES module from a CDN that serves npm packages. The code is ES2022: Chrome 93, Firefox 92, Safari 15.4 or later.
 
@@ -58,7 +62,7 @@ const {SeededRandomUtilities, PRNG} = require('seeded-random-utilities');
 
 ## Seeds
 
-A seed is a string or a finite number: `42` and `'42'` give the same sequence. Without a seed (undefined or null) the numbers come from `Math.random()`, so they are not repeatable.
+A seed is a string or a finite number: `42` and `'42'` give the same sequence, and a `String` object counts as its string. Without a seed (undefined or null) the numbers come from `Math.random()`, so they are not repeatable.
 
 ```js
 new SeededRandomUtilities('player-7');   // a string
@@ -81,6 +85,8 @@ const saved = JSON.stringify(rng.getState());
 // … later, anywhere …
 const resumed = SeededRandomUtilities.fromState(JSON.parse(saved));
 ```
+
+Only a generator made from a seed or a state has a state: `getState()` throws `TypeError` for an unseeded one and for one fed by a custom source or a `Rand`.
 
 **Other libraries.** Many libraries accept a `Math.random`-style function. `rng.random` is bound to its instance, so pass it directly:
 
@@ -123,13 +129,13 @@ The older variants stay so that seeds stored with 1.x keep producing the same nu
 | `chooseBooleanRandomlyWithProbability(itemCount, picks = 1)` | `true` with probability picks / itemCount |
 | `getState()` | The generator's position, for `SeededRandomUtilities.fromState(state)` |
 
-Bad arguments throw `TypeError` or `RangeError` with a message that names the method: an empty or reversed range, a probability outside [0, 1], an empty pool, or more unique integers than the range holds.
+Bad arguments throw `TypeError` or `RangeError`, for example: a bound that is not a finite number, a value of the wrong type (a length, an amount or a weight that is not a usable number throws `RangeError`, whatever its type), a reversed range, an integer range with no integer in it, a probability outside [0, 1], an empty pool, weights that add up to 0 or overflow to Infinity, or more unique integers than the range holds. Some odd inputs return rather than throw, as in 1.1.4: `getRandomFloat(5, 5)` returns 5, `selectRandomElement(5)` returns `undefined`, and `shuffle(5)` returns `[]`. Most messages start with the method's name; the constructor's, and the three kept from 1.1.4 ("Parameter source is not set" and the two about negative counts), do not.
 
 Also exported: `PRNG`; `Rand`, rand-seed 0.1's class with the same numbers (`new Rand(seed, prng).next()`); and the types `RandomUtilities`, `Seed`, `RandomSource` and `GeneratorState`.
 
 ## Same seed, same sequence
 
-Version 2 returns exactly what 1.1.4 returned for every call 1.1.4 handled, with every algorithm. The test suite checks 322 cases recorded from the published 1.1.4, on Node 20, 22, 24 and 26, Bun and Deno. Every number comes from arithmetic that JavaScript defines exactly, so every engine agrees.
+Version 2 returns exactly what 1.1.4 returned for every call 1.1.4 handled, with every algorithm. The test suite checks 322 cases recorded from the published 1.1.4 on Node 20, 22, 24 and 26, Bun and Deno, and 657 recorded from 2.0.0 (its new methods, its edge inputs and its errors) on every Node line. Every number comes from arithmetic that JavaScript defines exactly, so every engine agrees.
 
 The three exceptions are inputs that 1.1.4 handled badly:
 
@@ -148,6 +154,7 @@ A few rare call patterns also changed, such as passing methods as array callback
 | `getRandomIntInclusive(max, min)` | `getRandomIntegerInclusive(min, max)`. The same numbers |
 | `generateRandomArrayOfUniqueIntegers(amount, maxValue)` | `getUniqueRandomIntegers(amount, 0, maxValue + 1)`. It takes time and memory in proportion to the amount instead of the range, but draws a different sequence |
 | `require('seeded-random-utilities').default` | Still works; `.SeededRandomUtilities` too |
+| 1.0.0 to 1.1.3: `shuffle` and `generateRandomArrayOfUniqueIntegers` | They used `Math.random()` there, so they ignored the seed; 1.1.4 and 2.x draw from the seeded generator, so these calls, and every number drawn after them, differ from those versions |
 | `PRNG` from rand-seed, a TypeScript enum | `PRNG` from this package: an object and a string union type. `PRNG.sfc32` still works, and so does `'sfc32'` |
 
 The four old methods still work, with 1.1.4's behaviour for every input. They are deprecated, so editors strike them through, and 3.0.0 removes them. Node 18 and older are no longer supported. Import the package root only: deep paths into `dist/` changed. The details are in the [changelog](CHANGELOG.md).

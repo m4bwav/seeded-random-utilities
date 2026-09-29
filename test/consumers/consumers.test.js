@@ -2,7 +2,7 @@
 Consumer fixtures: install the package into a scratch project outside the repository, and use each published artifact the way a consumer would. Needs the network once to install TypeScript and the Node types into that project (the npm cache usually has them).
 
 - By default the package is the tarball `npm pack` makes from the current dist/; `npm run test:consumers` builds dist/ first. CI builds once on Node 24 and runs this file directly on each Node line, because the build tools need Node 22.18 or later.
-- CONSUMER_PACKAGE=seeded-random-utilities@<version> installs that version from the registry instead of packing; verify-published.yml checks a release this way.
+- CONSUMER_PACKAGE=seeded-random-utilities@<version> installs that version from the registry instead of packing; verify-published.yml checks a release this way. CONSUMER_PACKAGE=<path to a .tgz> installs that tarball; release.yml checks the very file it stages this way.
 - CONSUMER_RUNTIMES=bun,deno also runs the ES module fixture (with every 1.1.4 golden case) and the CommonJS fixture (Bun only) under Bun and Deno; the CI Bun and Deno jobs set it. A runtime it names must be installed.
 */
 import assert from 'node:assert/strict';
@@ -87,8 +87,8 @@ before(async () => {
   await writeFile(path.join(workspace, 'package.json'), `${JSON.stringify({name: 'consumer-workspace', private: true}, undefined, 2)}\n`);
   const typescript = require('typescript/package.json').version;
   const nodeTypes = require('@types/node/package.json').version;
-  // --prefer-offline only for the tarball: a registry install must see a version published minutes ago.
-  const offline = registryPackage === undefined ? ' --prefer-offline' : '';
+  // --prefer-offline only for a tarball: a registry install must see a version published minutes ago.
+  const offline = spec.endsWith('.tgz') ? ' --prefer-offline' : '';
   await mustSucceed('npm install', shell(`npm install --no-audit --no-fund${offline} "${spec}" typescript@${typescript} @types/node@${nodeTypes}`, workspace));
 
   for (const fixture of [...RUNTIME_FIXTURES, ...TYPE_FIXTURES]) {

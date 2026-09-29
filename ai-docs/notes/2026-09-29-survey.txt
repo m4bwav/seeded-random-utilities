@@ -1,0 +1,249 @@
+# npm survey: seeded-random-utilities (2026-09-29T13:42Z)
+
+## Registry metadata
+$ npm view seeded-random-utilities name version dist-tags time.created time.modified license author repository.url homepage main module types exports bin engines dependencies peerDependencies deprecated
+name = 'seeded-random-utilities'
+version = '2.0.0'
+dist-tags = { latest: '2.0.0' }
+time.created = '2019-11-22T01:53:26.236Z'
+time.modified = '2026-09-27T13:46:34.693Z'
+license = 'MIT'
+author = 'Mark Rogers (https://www.markdavidrogers.com)'
+repository.url = 'git+https://github.com/m4bwav/seeded-random-utilities.git'
+homepage = 'https://github.com/m4bwav/seeded-random-utilities#readme'
+main = './dist/index.cjs'
+module = './dist/index.mjs'
+types = './dist/index.d.cts'
+exports = {
+  '.': { import: './dist/index.mjs', require: './dist/index.cjs' },
+  './package.json': './package.json'
+}
+engines = { node: '>=20' }
+
+## All published versions with dates
+$ npm view seeded-random-utilities time --json
+{
+  "created": "2019-11-22T01:53:26.236Z",
+  "modified": "2026-09-27T13:46:34.693Z",
+  "1.0.0": "2019-11-22T01:53:26.421Z",
+  "1.1.0": "2019-11-24T20:45:27.278Z",
+  "1.1.1": "2019-11-24T20:58:10.359Z",
+  "1.1.2": "2019-11-24T21:53:17.625Z",
+  "1.1.3": "2019-11-24T22:08:55.825Z",
+  "1.1.4": "2019-11-25T23:18:18.154Z",
+  "2.0.0-beta.1": "2026-09-25T23:32:24.911Z",
+  "2.0.0": "2026-09-25T23:39:44.172Z"
+}
+
+## Attestations and signatures on the latest version
+$ npm view seeded-random-utilities dist.attestations dist.signatures --json
+{
+  "dist.attestations": {
+    "url": "https://registry.npmjs.org/-/npm/v1/attestations/seeded-random-utilities@2.0.0",
+    "provenance": {
+      "predicateType": "https://slsa.dev/provenance/v1"
+    }
+  },
+  "dist.signatures": [
+    {
+      "sig": "MEQCIAumh6/rwwN0dhEMggSZeInZVCY45XoZehrNOkMmUgE8AiA1aT6PxVv2rB99nBZu+2+SVXFoSXJfYL+YUONgoClW6w==",
+      "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+    }
+  ]
+}
+
+## Maintainers (emails masked)
+$ npm view seeded-random-utilities maintainers --json | sed -E 's/ <[^>]*>/ <email>/'
+[
+  "markrogers <email>"
+]
+
+## Downloads, last month
+$ curl -s https://api.npmjs.org/downloads/point/last-month/seeded-random-utilities
+{"downloads":502,"start":"2026-08-29","end":"2026-09-27","package":"seeded-random-utilities"}
+## Downloads, last year by month
+$ curl -s "https://api.npmjs.org/downloads/range/last-year/seeded-random-utilities" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const m={};for(const {day,downloads} of JSON.parse(s).downloads){const k=day.slice(0,7);m[k]=(m[k]||0)+downloads}console.log(m)})'
+{
+  '2025-09': 47,
+  '2025-10': 455,
+  '2025-11': 1045,
+  '2025-12': 271,
+  '2026-01': 262,
+  '2026-02': 196,
+  '2026-03': 186,
+  '2026-04': 160,
+  '2026-05': 652,
+  '2026-06': 268,
+  '2026-07': 147,
+  '2026-08': 108,
+  '2026-09': 494
+}
+
+## Dependents (registry search; npmjs.com shows the list)
+$ curl -s "https://registry.npmjs.org/-/v1/search?text=seeded-random-utilities&size=1" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const r=JSON.parse(s);console.log(JSON.stringify({total:r.total, first:r.objects[0]?.package?.name, dependents: r.objects[0]?.dependents ?? "(see https://www.npmjs.com/browse/depended/seeded-random-utilities)"}))})'
+{"total":82166,"first":"seeded-random-utilities","dependents":0}
+
+## Dependents by name: public repositories whose package.json names it (the registry gives only a count)
+$ gh search code "\"seeded-random-utilities\"" --filename package.json --json repository --jq '.[].repository.nameWithOwner' --limit 50 2>&1 | sort -u
+DevLeoko/ArticleTrainer
+Mervap/SoftwareTesting
+geometry-app/frontend
+m4bwav/seeded-random-utilities
+
+## Tarball file list of the published version
+$ npm pack seeded-random-utilities --dry-run --json 2>/dev/null | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const [p]=JSON.parse(s);console.log(p.size+" bytes, "+p.entryCount+" files");for(const f of p.files)console.log(" "+f.path+" "+f.size)})'
+44434 bytes, 10 files
+ CHANGELOG.md 6736
+ LICENSE 2634
+ README.md 10642
+ dist/index.cjs 15471
+ dist/index.cjs.map 43480
+ dist/index.d.cts 15498
+ dist/index.d.mts 15498
+ dist/index.mjs 15301
+ dist/index.mjs.map 43476
+ package.json 2451
+
+## Runtime dependencies: how far behind
+$ npm view <dep> version time.modified deprecated
+(no runtime dependencies)
+
+# GitHub side (m4bwav/seeded-random-utilities)
+# GitHub survey: m4bwav/seeded-random-utilities (2026-09-29T13:42Z)
+
+## Repository
+$ gh repo view m4bwav/seeded-random-utilities --json name,description,defaultBranchRef,pushedAt,createdAt,licenseInfo,stargazerCount,forkCount,isArchived,homepageUrl --jq '{name,description,defaultBranch:.defaultBranchRef.name,pushedAt,createdAt,license:.licenseInfo.key,stars:.stargazerCount,forks:.forkCount,archived:.isArchived,homepage:.homepageUrl}'
+{"archived":false,"createdAt":"2019-11-17T19:02:33Z","defaultBranch":"master","description":"Seeded random numbers, integers, booleans, strings, picks and shuffles: the same seed gives the same sequence everywhere. Zero dependencies, TypeScript, ESM and CommonJS.","forks":1,"homepage":"https://www.npmjs.com/package/seeded-random-utilities","license":"other","name":"seeded-random-utilities","pushedAt":"2026-09-28T19:51:12Z","stars":2}
+
+## Settings and security features
+$ gh api repos/m4bwav/seeded-random-utilities --jq '{delete_branch_on_merge, has_wiki, has_projects, allow_squash_merge, web_commit_signoff_required, security_and_analysis}'
+{"allow_squash_merge":true,"delete_branch_on_merge":true,"has_projects":false,"has_wiki":true,"security_and_analysis":{"dependabot_security_updates":{"status":"enabled"},"secret_scanning":{"status":"enabled"},"secret_scanning_non_provider_patterns":{"status":"disabled"},"secret_scanning_push_protection":{"status":"enabled"},"secret_scanning_validity_checks":{"status":"disabled"}},"web_commit_signoff_required":false}
+
+## Default workflow permissions
+$ gh api repos/m4bwav/seeded-random-utilities/actions/permissions/workflow
+{"default_workflow_permissions":"read","can_approve_pull_request_reviews":false}
+## Branches
+$ gh api repos/m4bwav/seeded-random-utilities/branches --paginate --jq '.[].name'
+master
+
+## Rulesets and branch protection
+$ r=$(gh api repos/m4bwav/seeded-random-utilities/rulesets --jq '.[] | "\(.id) \(.name) \(.enforcement)"'); echo "${r:-(no rulesets)}"; if p=$(gh api repos/m4bwav/seeded-random-utilities/branches/$(gh repo view m4bwav/seeded-random-utilities --json defaultBranchRef --jq .defaultBranchRef.name)/protection --jq . 2>/dev/null); then echo "$p"; else echo '(no classic branch protection)'; fi
+24022136 master active
+(no classic branch protection)
+
+## Issues (all states)
+$ gh issue list -R m4bwav/seeded-random-utilities --state all --limit 100 --json number,title,state,author,createdAt,closedAt --jq '.[] | "#\(.number) \(.state) \(.createdAt[:10]) \(.author.login): \(.title)"'
+
+## Pull requests (all states)
+$ gh pr list -R m4bwav/seeded-random-utilities --state all --limit 100 --json number,title,state,author,headRefName,createdAt --jq '.[] | "#\(.number) \(.state) \(.createdAt[:10]) \(.author.login) [\(.headRefName)]: \(.title)"'
+#17 MERGED 2026-09-25 m4bwav [v2]: v2: TypeScript rewrite with no runtime dependencies, 1.1.4's sequences kept, CI and release workflows
+#16 CLOSED 2023-01-05 app/dependabot [dependabot/npm_and_yarn/json5-2.2.3]: Bump json5 from 2.1.1 to 2.2.3
+#15 CLOSED 2022-12-10 app/dependabot [dependabot/npm_and_yarn/qs-6.5.3]: Bump qs from 6.5.2 to 6.5.3
+#14 CLOSED 2022-12-04 app/dependabot [dependabot/npm_and_yarn/decode-uri-component-0.2.2]: Bump decode-uri-component from 0.2.0 to 0.2.2
+#13 CLOSED 2022-07-20 app/dependabot [dependabot/npm_and_yarn/terser-4.8.1]: Bump terser from 4.4.0 to 4.8.1
+#12 CLOSED 2022-02-12 app/dependabot [dependabot/npm_and_yarn/ajv-6.12.6]: Bump ajv from 6.10.2 to 6.12.6
+#11 CLOSED 2021-09-21 app/dependabot [dependabot/npm_and_yarn/tmpl-1.0.5]: Bump tmpl from 1.0.4 to 1.0.5
+#10 CLOSED 2021-08-11 app/dependabot [dependabot/npm_and_yarn/path-parse-1.0.7]: Bump path-parse from 1.0.6 to 1.0.7
+#9 CLOSED 2021-06-10 app/dependabot [dependabot/npm_and_yarn/glob-parent-5.1.2]: Bump glob-parent from 5.1.0 to 5.1.2
+#8 CLOSED 2021-05-11 app/dependabot [dependabot/npm_and_yarn/hosted-git-info-2.8.9]: Bump hosted-git-info from 2.8.5 to 2.8.9
+#7 CLOSED 2021-05-10 app/dependabot [dependabot/npm_and_yarn/lodash-4.17.21]: Bump lodash from 4.17.15 to 4.17.21
+#6 CLOSED 2021-05-08 app/dependabot [dependabot/npm_and_yarn/handlebars-4.7.7]: Bump handlebars from 4.5.2 to 4.7.7
+#5 CLOSED 2021-03-31 app/dependabot [dependabot/npm_and_yarn/y18n-4.0.1]: Bump y18n from 4.0.0 to 4.0.1
+#4 CLOSED 2020-09-10 app/dependabot [dependabot/npm_and_yarn/handlebars-4.7.6]: Bump handlebars from 4.5.2 to 4.7.6
+#3 CLOSED 2020-07-18 app/dependabot [dependabot/npm_and_yarn/lodash-4.17.19]: Bump lodash from 4.17.15 to 4.17.19
+#2 MERGED 2020-03-14 app/dependabot [dependabot/npm_and_yarn/acorn-5.7.4]: Bump acorn from 5.7.3 to 5.7.4
+#1 MERGED 2019-11-24 gitter-badger [gitter-badge]: Add a Gitter chat badge to README.md
+
+## Open Dependabot alerts by severity, package and scope
+$ gh api "repos/m4bwav/seeded-random-utilities/dependabot/alerts?state=open&per_page=100" --paginate --jq '.[] | "\(.security_advisory.severity) \(.dependency.package.name) \(.dependency.scope)"' | sort | uniq -c | sort -rn
+
+## Open Dependabot alerts, count
+$ gh api "repos/m4bwav/seeded-random-utilities/dependabot/alerts?state=open&per_page=100" --paginate --jq length
+0
+
+## Webhooks (dead services leave these)
+$ gh api repos/m4bwav/seeded-random-utilities/hooks --jq '.[] | "\(.id) \(.config.url) active=\(.active) events=\(.events|join(","))"'
+
+## Actions secrets (count) and variables
+$ gh api repos/m4bwav/seeded-random-utilities/actions/secrets --jq '{total_count, names:[.secrets[].name]}'; gh api repos/m4bwav/seeded-random-utilities/actions/variables --jq '{total_count, names:[.variables[].name]}'
+{"names":[],"total_count":0}
+{"names":[],"total_count":0}
+
+## Environments
+$ gh api repos/m4bwav/seeded-random-utilities/environments --jq '.environments[]? | "\(.name) reviewers=\([.protection_rules[]? | select(.type=="required_reviewers") | .reviewers[]?.reviewer.login] | join(","))"'
+
+## Workflows
+$ gh api repos/m4bwav/seeded-random-utilities/actions/workflows --jq '.workflows[] | "\(.name) \(.path) \(.state)"'
+ci .github/workflows/ci.yml active
+release .github/workflows/release.yml active
+verify-published .github/workflows/verify-published.yml active
+Dependabot Updates dynamic/dependabot/dependabot-updates active
+
+## Action pins in the default branch's workflows, with each action's runtime
+$ action_pins (git tree, contents API, action.yml at each ref)
+.github/workflows/ci.yml actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 -> node24
+.github/workflows/ci.yml actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 -> node24
+.github/workflows/ci.yml actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a -> node24
+.github/workflows/ci.yml denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed -> node24
+.github/workflows/ci.yml oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 -> node24
+.github/workflows/release.yml actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 -> node24
+.github/workflows/release.yml actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c -> node24
+.github/workflows/release.yml actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 -> node24
+.github/workflows/release.yml actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a -> node24
+.github/workflows/verify-published.yml actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 -> node24
+.github/workflows/verify-published.yml actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 -> node24
+.github/workflows/verify-published.yml denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed -> node24
+.github/workflows/verify-published.yml oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 -> node24
+
+## Forks
+$ gh api repos/m4bwav/seeded-random-utilities/forks --jq '.[] | "\(.full_name) pushed=\(.pushed_at[:10])"'
+gitter-badger/seeded-random-utilities pushed=2019-11-24
+
+## Releases and tags
+$ gh release list -R m4bwav/seeded-random-utilities --limit 20; gh api repos/m4bwav/seeded-random-utilities/tags --jq '.[].name' | head -30
+v2.0.0	Latest	v2.0.0	2026-09-25T23:37:01Z
+v2.0.0-beta.1	Pre-release	v2.0.0-beta.1	2026-09-25T23:26:38Z
+v2.0.0
+v2.0.0-beta.1
+
+## Dead-service files in the default branch
+$ gh api repos/m4bwav/seeded-random-utilities/git/trees/HEAD?recursive=1 --jq '.tree[].path' | grep -Ei '^(\.travis\.yml|\.snyk|\.synk|\.sonarcloud\.properties|sonar-project\.properties|\.coveralls\.yml|codecov\.yml|\.codecov\.yml|appveyor\.yml|\.circleci/|\.npmignore|\.nuspec|\.vscode/)' || echo '(none)'
+(none)
+
+## Dotfiles at the root of the default branch
+$ gh api repos/m4bwav/seeded-random-utilities/contents --jq '.[].name' | grep '^\.' || echo '(none)'
+.editorconfig
+.gitattributes
+.github
+.gitignore
+
+## Branches with no open pull request (stale work or bot leftovers; each needs a disposition)
+$ comm -23 <(gh api repos/m4bwav/seeded-random-utilities/branches --paginate --jq '.[].name' | sort) <( (gh pr list -R m4bwav/seeded-random-utilities --state open --limit 200 --json headRefName --jq '.[].headRefName'; gh repo view m4bwav/seeded-random-utilities --json defaultBranchRef --jq .defaultBranchRef.name) | sort) || echo '(none)'
+
+## Badges in the README
+$ gh api repos/m4bwav/seeded-random-utilities/readme --jq .content | base64 -d 2>/dev/null | grep -Eo 'https?://[^ )]*(shields\.io|travis-ci|david-dm|snyk\.io|coveralls|codecov|gitter|sonarcloud|nodei\.co|badgen|badge)[^ )]*' | sort -u || echo '(none)'
+https://github.com/m4bwav/seeded-random-utilities/actions/workflows/ci.yml/badge.svg
+https://img.shields.io/npm/dm/seeded-random-utilities.svg
+https://img.shields.io/npm/v/seeded-random-utilities.svg
+
+## Things only the maintainer can see
+- Installed GitHub Apps and authorized OAuth apps: github.com/settings/installations and github.com/settings/applications (the API refuses the gh token).
+- Whether a token in history is still live: revoke it at the provider regardless.
+
+## Next: in the clone
+- Read every source and test file, package.json, the build config, the README and every dotfile.
+- Leaked credentials: .travis.yml, .npmrc, .env, workflows, and history (git log -S TOKEN_NAME).
+- Run the old build and tests as they are (Windows: npm --script-shell "C:/Program Files/Git/bin/bash.exe" test for ./node_modules/.bin scripts).
+- Then the golden capture from the PUBLISHED version in a scratch project (scripts/golden-capture-npm.template.cjs).
+
+# README images (scripts/check-readme-images.mjs --registry npm, repository README then the README in the published 2.0.0 tarball)
+3 image(s) in D:/m4bwa/Claude/Projects/Ai/seeded-random-utilities/README.md, checked for npm
+ok   [npm version] https://img.shields.io/npm/v/seeded-random-utilities.svg
+ok   [CI] https://github.com/m4bwav/seeded-random-utilities/actions/workflows/ci.yml/badge.svg
+ok   [npm downloads] https://img.shields.io/npm/dm/seeded-random-utilities.svg
+every image works
+3 image(s) in C:/Users/m4bwa/AppData/Local/Temp/claude/d--m4bwa-Claude-Projects-Ai/9b3d7d81-31bb-4706-83bc-55975313ccc2/scratchpad/versions/x-2.0.0/package/README.md, checked for npm
+ok   [npm version] https://img.shields.io/npm/v/seeded-random-utilities.svg
+ok   [CI] https://github.com/m4bwav/seeded-random-utilities/actions/workflows/ci.yml/badge.svg
+ok   [npm downloads] https://img.shields.io/npm/dm/seeded-random-utilities.svg
+every image works

@@ -7,12 +7,15 @@ updates:
     schedule:
       interval: weekly
       day: monday
+    # New releases wait a week before a pull request, so a compromised version is usually caught and pulled first (zizmor dependabot-cooldown).
+    cooldown:
+      default-days: 7
     groups:
       minor-and-patch:
         update-types: [minor, patch]
     ignore:
       # TypeScript 7: xo 5 bundles TypeScript 6 and typescript-eslint accepts only TypeScript below 6.1 (checked 2026-09-25).
-      # Remove this rule when xo supports TypeScript 7 (ai-docs/HANDOFF.md, Stage 4).
+      # Remove this rule when xo supports TypeScript 7 (ai-docs/HANDOFF.md, standing work).
       - dependency-name: typescript
         update-types: ['version-update:semver-major']
       # @types/node stays on Node 24, the line the package builds on (the library itself needs no Node types); bump it by hand.
@@ -24,3 +27,6 @@ updates:
     schedule:
       interval: weekly
       day: monday
+    # New releases wait a week before a pull request, so a compromised version is usually caught and pulled first (zizmor dependabot-cooldown).
+    cooldown:
+      default-days: 7
