@@ -137,7 +137,8 @@ jobs:
       - name: The golden recordings, capture scripts and codec are unchanged since the commits that added them
         run: test/golden/check-untouched.sh
       # check comes before the tests: attw packs with lifecycle scripts, and prepack rebuilds dist/. The dist/ that npm test
-      # builds and tests is the one packed below.
+      # builds and tests is the one packed below. publint reads dist/ from disk, so build first (as ci.yml does).
+      - run: npm run build
       - name: publint, attw and the pack file list
         run: npm run check
       - run: npm test
