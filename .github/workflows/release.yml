@@ -4,7 +4,7 @@
 # until Mark approves the staged version on npmjs.com with two-factor authentication; then run verify-published.yml
 # with the version.
 # `npm version` pushes the version commit and its tag together, so ci on that commit is still running when this starts: the
-# build job waits for it (up to 30 minutes) and stops unless it succeeded (L-120, L-126 in package-modernize).
+# build job waits for it (up to 30 minutes) and stops unless it succeeded (L-120, L-127 in package-modernize).
 # No npm token exists anywhere: npm exchanges the job's OIDC token for a short-lived one, and adds provenance itself.
 # The trusted publisher on npmjs.com names this file, release.yml; renaming it breaks publishing.
 name: release
@@ -106,7 +106,7 @@ jobs:
         run: |
           # Only ci.yml's run for the push of this commit to master counts: a pull request run on the same commit tested a merge
           # ref, and a cancelled one says nothing. The newest such run decides. One verdict word from gh's own jq, compared
-          # exactly, so a missing tool or an API error stops the job instead of passing it (L-127).
+          # exactly, so a missing tool or an API error stops the job instead of passing it (L-128).
           verdict='.workflow_runs | if length == 0 then "waiting" else (max_by(.created_at) | if .status != "completed" then "waiting" elif .conclusion == "success" then "success" else "failed" end) end'
           for attempt in $(seq 1 60); do
             state=$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/ci.yml/runs?head_sha=$GITHUB_SHA&event=push&branch=master&per_page=20" --jq "$verdict") || state=error
