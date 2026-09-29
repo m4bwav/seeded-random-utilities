@@ -15,8 +15,9 @@ permissions:
   contents: read
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  # Only pull request runs are cancelled: every master commit keeps its ci result, which release.yml waits for (L-120).
+  # A pull request's runs share a group and the newest cancels the rest; every other run (a master push, a manual run) has a
+  # group of its own commit, so no master run is cancelled or replaced while release.yml waits for it (L-120).
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.ref || github.sha }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 defaults:

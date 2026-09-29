@@ -31,12 +31,13 @@ jobs:
     timeout-minutes: 50
     permissions:
       contents: read
-      checks: read
+      actions: read
     outputs:
       version: ${{ steps.version.outputs.version }}
       dist-tag: ${{ steps.version.outputs.dist-tag }}
       prerelease: ${{ steps.version.outputs.prerelease }}
       tarball: ${{ steps.version.outputs.tarball }}
+      sha512: ${{ steps.tarball.outputs.sha512 }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -99,21 +100,23 @@ jobs:
             exit 1
           fi
           printf '%s\n' "$notes" > release-notes.md
-      - name: ci passed on the tagged commit (waits up to 30 minutes for the run the same push started)
+      - name: ci passed on the tagged commit's push to master (waits up to 30 minutes for the run the same push started)
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          # One verdict from gh's own jq, compared as an exact word, so a missing tool or an API error stops the job instead of passing it.
-          verdict='if any(.check_runs[]; .conclusion == "success") then "success" elif (.check_runs | length) > 0 and all(.check_runs[]; .status == "completed") then "failed" else "waiting" end'
+          # Only ci.yml's run for the push of this commit to master counts: a pull request run on the same commit tested a merge
+          # ref, and a cancelled one says nothing. The newest such run decides. One verdict word from gh's own jq, compared
+          # exactly, so a missing tool or an API error stops the job instead of passing it (L-127).
+          verdict='.workflow_runs | if length == 0 then "waiting" else (max_by(.created_at) | if .status != "completed" then "waiting" elif .conclusion == "success" then "success" else "failed" end) end'
           for attempt in $(seq 1 60); do
-            state=$(gh api "repos/$GITHUB_REPOSITORY/commits/$GITHUB_SHA/check-runs?check_name=ci" --jq "$verdict") || state=error
+            state=$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/ci.yml/runs?head_sha=$GITHUB_SHA&event=push&branch=master&per_page=20" --jq "$verdict") || state=error
             case "$state" in
               success)
                 echo "ci succeeded on $GITHUB_SHA"
                 exit 0
                 ;;
               failed)
-                echo "::error::ci finished on $GITHUB_SHA without success"
+                echo "::error::ci's push run on $GITHUB_SHA finished without success"
                 exit 1
                 ;;
               waiting)
@@ -128,21 +131,26 @@ jobs:
           done
           echo "::error::no finished ci check on $GITHUB_SHA after 30 minutes"
           exit 1
-      - run: npm ci
+      - run: npm ci --ignore-scripts
       - run: npm run lint
       - run: npm run typecheck
       - name: The golden recordings, capture scripts and codec are unchanged since the commits that added them
         run: test/golden/check-untouched.sh
-      - run: npm test
+      # check comes before the tests: attw packs with lifecycle scripts, and prepack rebuilds dist/. The dist/ that npm test
+      # builds and tests is the one packed below.
       - name: publint, attw and the pack file list
         run: npm run check
-      - name: Pack the tarball that gets staged, once
+      - run: npm test
+      - name: Pack the tarball that gets staged, once, from the dist/ the tests ran on
         run: npm pack --ignore-scripts
-      - name: The tarball's files, size and version
+      - name: The tarball's files, size and version, and its SHA-512 for the jobs that test and stage it
+        id: tarball
         env:
           VERSION: ${{ steps.version.outputs.version }}
           TARBALL: ${{ steps.version.outputs.tarball }}
-        run: node scripts/check-tarball.mjs "$TARBALL" "$VERSION"
+        run: |
+          node scripts/check-tarball.mjs "$TARBALL" "$VERSION"
+          echo "sha512=$(sha512sum "$TARBALL" | cut -d ' ' -f 1)" >> "$GITHUB_OUTPUT"
       - name: Consumer fixtures on the tarball that gets staged
         env:
           CONSUMER_PACKAGE: ${{ github.workspace }}/${{ steps.version.outputs.tarball }}
@@ -186,11 +194,14 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
           package-manager-cache: false
-      - name: The tarball's files, size and version
+      - name: The tarball is the one the build job tested (SHA-512), with the right files, size and version
         env:
           VERSION: ${{ needs.build.outputs.version }}
           TARBALL: ${{ needs.build.outputs.tarball }}
-        run: node scripts/check-tarball.mjs "$TARBALL" "$VERSION"
+          SHA512: ${{ needs.build.outputs.sha512 }}
+        run: |
+          echo "$SHA512  $TARBALL" | sha512sum -c -
+          node scripts/check-tarball.mjs "$TARBALL" "$VERSION"
       - name: Consumer fixtures on the tarball that gets staged
         env:
           CONSUMER_PACKAGE: ${{ github.workspace }}/${{ needs.build.outputs.tarball }}
@@ -219,12 +230,13 @@ jobs:
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: release
-      - name: Stage on npm for Mark's approval (the SHA-512 matches the one the build and consumers jobs printed)
+      - name: Stage on npm for Mark's approval, only the tarball the build and consumers jobs tested (SHA-512)
         env:
           TARBALL: ${{ needs.build.outputs.tarball }}
           DIST_TAG: ${{ needs.build.outputs.dist-tag }}
+          SHA512: ${{ needs.build.outputs.sha512 }}
         run: |
-          sha512sum "$TARBALL"
+          echo "$SHA512  $TARBALL" | sha512sum -c -
           npm stage publish "./$TARBALL" --tag "$DIST_TAG" --ignore-scripts
 
   github-release:

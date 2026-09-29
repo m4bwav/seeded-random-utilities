@@ -6,6 +6,8 @@
 # file from that commit to the working tree. A later file (the new major's own recording, 2.0.0.json) is checked from its
 # own first commit. The golden test itself (golden.test.*) may change, since exceptions are named there. The capture's
 # fixture server (fixture-server*) is checked too: its routes define what each recorded case means (2026-09-26).
+# It also fails in a shallow clone (the adding commit is missing, so an edit would pass) and when history deleted or renamed
+# a recording (a rename plus an edit in one commit reads as a new file; seeded-random-utilities' review, 2026-09-29).
 # Prints PASS or FAIL per file with the adding commit; exit 1 on any change. Written because agents reviving repositories
 # edit failing tests (RepoRescue, 2026; R-20260926-2).
 set -u
@@ -16,6 +18,15 @@ if [ ! -d "$DIR/$GOLDEN" ]; then
   echo "FAIL  no $GOLDEN in $DIR (Phase 0 commits the golden capture there)"
   exit 1
 fi
+if [ "$(git -C "$DIR" rev-parse --is-shallow-repository)" != false ]; then
+  echo "FAIL  $DIR is a shallow clone (or not a repository); fetch the whole history (actions/checkout fetch-depth: 0)"
+  exit 1
+fi
+while IFS= read -r gone; do
+  [ -z "$gone" ] && continue
+  echo "FAIL  $gone was deleted or renamed in the history ($(git -C "$DIR" log -M --diff-filter=DR --format=%h -1 -- "$gone")); recordings are never moved or removed"
+  fail=1
+done < <(git -C "$DIR" log -M --diff-filter=DR --name-status --format= -- "$GOLDEN" | awk -F '\t' '{print $2}' | grep -E '(^|/)([^/]*[.]json|capture[^/]*|codec[^/]*|fixture-server[^/]*)$' | sort -u)
 count=0
 while IFS= read -r file; do
   case "$(basename "$file")" in
