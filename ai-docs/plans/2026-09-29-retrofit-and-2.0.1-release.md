@@ -1,7 +1,7 @@
 ---
 title: Retrofit and 2.0.1 release
 kind: plan
-status: active
+status: done
 date: 2026-09-29
 verified: 2026-09-29
 stale_after: never
@@ -15,7 +15,7 @@ The retrofit path of the package-modernize skill (references/retrofit.md, its fi
 
 ## Status
 
-Active, 2026-09-29: Phases 0 to 3 done. Mark ruled "yes do them all" (every recommendation stands). Pull request #18 is open, reviewed and green (CI run 36598304912 on 1896ce2); the tag ruleset is applied. Waiting for Mark's review and merge of #18.
+Done, 2026-09-29: 2.0.1 is `latest` and `next`, verified from the registry; 1.0.0 to 1.1.3 are deprecated; the wiki is updated. The rehearsal needed a second beta: 2.0.1-beta.1's release run failed before staging (publint before any build), fixed in #19, and 2.0.1-beta.2 went through. What is left is the standing work in [../HANDOFF.md](../HANDOFF.md).
 
 ## Goal
 
@@ -78,13 +78,13 @@ See the audit note's tables. In short: 2.0.0 latest with provenance; 1.0.0 to 1.
 - [x] Independent read-only review (prompts/review-subagent.md: 977,328 comparisons per Node line, 0 differences; 12 findings fixed in 1896ce2 and summarised on #18) with a differential of the new build against the published 2.0.0 over generated inputs on every supported Node line; findings fixed or answered
 - [x] Tag ruleset applied (R6, ruleset 24191908) before the pull request stop. **Stop.**
 ### Phase 4: merge
-- [ ] CI green (run id); merged by Mark or with his go; method and SHA read back
+- [x] CI green (run id); merged by Mark or with his go; method and SHA read back (squash cbc54a6 at 18:35 UTC; ci push run 36613109596 green)
 ### Phase 5 and 6: rehearsal and release
-- [ ] `preflight-tag-npm.sh 2.0.1-beta.1` READY; tagged; staged under `next`; **stop** for Mark's approval; verified from the registry
-- [ ] CHANGELOG dated; 2.0.1 tagged, staged, **stop** for the approval; verify-published on every platform and runtime; `check-next-tag-npm.sh` passes after `next` moves
-- [ ] Deprecation of 1.0.0 to 1.1.3 (R9) run after Mark's OK; `npm view seeded-random-utilities@1.1.3 deprecated` shows it
+- [x] `preflight-tag-npm.sh 2.0.1-beta.1` READY; tagged; staged under `next`; **stop** for Mark's approval; verified from the registry. beta.1: release run 36614300884 failed in `npm run check` (no `dist/` yet), nothing staged; fixed in #19 (3f0a841); beta.2: run 36615374214 green, the ci wait worked, approved, VERIFIED, verify-published 36618478939 green in 15 jobs
+- [x] CHANGELOG dated; 2.0.1 tagged, staged, **stop** for the approval; verify-published on every platform and runtime; `check-next-tag-npm.sh` passes after `next` moves (tag on f394df3, release run 36619659747, approved, VERIFIED, verify-published 36621026089 green in 15 jobs, README images ok from the tarball, `next` 2.0.1)
+- [x] Deprecation of 1.0.0 to 1.1.3 (R9) run after Mark's OK; `npm view seeded-random-utilities@1.1.3 deprecated` shows it (Mark ran it and the dist-tag move in his terminal: the 2FA link npm prints is masked in the agent's output; 1.1.4 and 2.0.1 read back empty)
 ### Phase 7: wrap-up
-- [ ] Wiki with wikiwright's Update mode for 2.0.1 (Versions table, the new capture's findings)
+- [x] Wiki with wikiwright's Update mode for 2.0.1 (Versions table, the new capture's findings): wiki commit 3b789c5, live 9 of 9; [../notes/2026-09-28-github-wiki.md](../notes/2026-09-28-github-wiki.md)
 - [ ] HANDOFF, inventory row, Wikis row, kickoff corrections, skill lessons and templates
 
 ## Test strategy
@@ -120,4 +120,4 @@ No tokens exist (trusted publishing, staged, no environment, workflow release.ym
 
 ## Next single action
 
-Mark reviews and merges pull request #18; then read the merge method and SHA back and start Phase 5 (see HANDOFF.md).
+None: the plan is done. The standing work is in [../HANDOFF.md](../HANDOFF.md).

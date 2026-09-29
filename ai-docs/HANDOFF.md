@@ -1,50 +1,46 @@
 # Handoff
 
-Updated 2026-09-29: the retrofit to the package-modernize standard ([plans/2026-09-29-retrofit-and-2.0.1-release.md](plans/2026-09-29-retrofit-and-2.0.1-release.md)) has reached the pull request stop. Pull request #18 (branch `v2-retrofit`) is reviewed, its 12 review findings are fixed and CI is green (run 36598304912 on 1896ce2). Mark ruled "yes do them all" on 2026-09-29: every recommendation R1 to R12 stands, the tag ruleset (applied, 24191908), the 1.0.0 to 1.1.3 deprecation after 2.0.1 is verified, and moving `next` to 2.0.1. Below the retrofit steps, the state of 2.0.0 and the standing work. Read [log.md](log.md) for evidence.
-
-## The retrofit: what is left, in order
-
-1. Mark reviews and merges #18. Read the method and SHA back: `gh pr view 18 -R m4bwav/seeded-random-utilities --json mergeCommit,mergedAt`. Wait for ci's push run on master to pass.
-2. Rehearsal: on master, CHANGELOG heading stays `## [2.0.1] - Unreleased`; `bash <skill>/scripts/preflight-tag-npm.sh 2.0.1-beta.1 .` must print READY; `npm version 2.0.1-beta.1` and `git push --follow-tags`. release.yml waits for ci's push run on that commit (this is the first real test of the gate, L-127 in the skill), then stages under `next`. `bash <skill>/scripts/watch-run.sh m4bwav/seeded-random-utilities release.yml`. **Stop**: Mark approves in npmjs.com, package settings, Staged Packages tab, with 2FA. Then `bash <skill>/scripts/verify-registry-npm.sh seeded-random-utilities 2.0.1-beta.1 m4bwav/seeded-random-utilities` and `gh workflow run verify-published.yml -f version=2.0.1-beta.1`.
-3. Release: date the heading `## [2.0.1] - YYYY-MM-DD`, lint and test, preflight READY, `npm version 2.0.1`, push, **stop** for the approval, the same verification, `gh release view v2.0.1`, `node <skill>/scripts/check-readme-images.mjs --registry npm` on the README from the published tarball.
-4. npm, as Mark ruled: `npm deprecate seeded-random-utilities@"<1.1.4" "1.0.0 to 1.1.3 shuffle with Math.random, so shuffle and generateRandomArrayOfUniqueIntegers ignore the seed. Use 2.x, which keeps 1.1.4's sequences, or 1.1.4."` and `npm dist-tag add seeded-random-utilities@2.0.1 next` (Mark stays logged in; npm answers with a browser link he approves). Read back: `npm view seeded-random-utilities@1.1.3 deprecated`, `npm view seeded-random-utilities@1.1.4 deprecated` (empty), `bash <skill>/scripts/check-next-tag-npm.sh seeded-random-utilities`.
-5. Wiki with wikiwright's Update mode for 2.0.1 ([notes/2026-09-28-github-wiki.md](notes/2026-09-28-github-wiki.md) has the procedure). Corrections the wiki needs: Versions and upgrading says 1.1.4 is "the same code as 1.1.3" and that 1.1.0 to 1.1.3 export `RandomUtilities` (both wrong: 1.0.0 to 1.1.3 shuffle with Math.random and export `ISeededRandomUtilities`; 1.1.4 changed both); the FAQ and Errors pages can take the new README sentences and the overflowing-weights message; the Development page's test count (2255).
-6. Records: the package-modernization pull request #14 (the kickoff's status line and corrections, the inventory row; the Wikis row after the wiki). The skill's lessons are merged (m4bwav/package-modernize#18, merge 065bf8a: C-20260929-4 the consolidation, C-20260929-5 this run, lessons L-126 to L-131); after the rehearsal, L-127 (`npm-version-tags-before-ci`) can be promoted.
-7. The evergreen upkeep the SessionStart hooks asked for on 2026-09-29 (refresh game-snapshots, context-health, everlast-protocol, unity-agent-cli; the evergreen plugin's verify-at-use claims), and package-modernize's research refresh if the run reaches 2026-10-05.
-
-`<skill>` is `C:/Users/m4bwa/.claude/skills/package-modernize` (pull it first with `git -C D:/m4bwa/Claude/Projects/Ai/package-modernize pull --ff-only`).
+Updated 2026-09-29: the retrofit to the package-modernize standard is done ([plans/2026-09-29-retrofit-and-2.0.1-release.md](plans/2026-09-29-retrofit-and-2.0.1-release.md), status done). 2.0.1 is released and verified, 1.0.0 to 1.1.3 are deprecated, `next` points at 2.0.1, and the wiki is updated for 2.0.1. Read [log.md](log.md) for evidence.
 
 ## Current state
 
-- **npm.** `latest` is 2.0.0, approved by Mark on 2026-09-25, with SLSA provenance and no dependencies. `latest` is the only dist-tag (checked 2026-09-28; `next` pointed at 2.0.0-beta.1 until at least 2026-09-25). GitHub Releases v2.0.0 and v2.0.0-beta.1 (a prerelease) exist. master holds the release, and CI is green on every push.
-- **Verified from the registry.** verify-published run 36202020534 was green in all 15 jobs (Node 20 to 26 on Linux, Windows and macOS, Bun, Deno). Locally, `npm audit signatures` verified the signature and the attestation, and require and import give 1.1.4's numbers.
+- **npm.** `latest` and `next` are both 2.0.1 (published 2026-09-29, approved by Mark, SLSA provenance, no dependencies). 1.0.0 to 1.1.3 carry the deprecation message "1.0.0 to 1.1.3 shuffle with Math.random, so shuffle and generateRandomArrayOfUniqueIntegers ignore the seed. Use 2.x, which keeps 1.1.4's sequences, or 1.1.4."; 1.1.4 and 2.x are not deprecated. The prerelease 2.0.1-beta.2 is on npm; the tag v2.0.1-beta.1 exists on GitHub with no npm version (its release run failed before staging).
+- **Verified from the registry.** verify-published run 36621026089 green in all 15 jobs (Node 20 to 26 on Linux, Windows and macOS, Bun, Deno); `verify-registry-npm.sh` VERIFIED (signature and attestation); the README's three badges load from the published tarball, and npm shows the corrected error sentence.
 - **GitHub:**
-  - 0 Dependabot alerts, no open pull requests or issues, only `master`, 0 webhooks.
-  - Ruleset 24022136 protects `master`.
+  - Releases v2.0.1, v2.0.1-beta.2 (prerelease), v2.0.0, v2.0.0-beta.1.
+  - Ruleset 24022136 protects `master` (requires the final `ci` job); ruleset 24191908 limits tags to admins. Only `master`, 0 webhooks, no open pull requests or issues.
   - Secret scanning, push protection and private vulnerability reporting are on, and workflow permissions are read-only.
-- **The contract.** `test/golden/1.1.4.json` holds 322 cases from the published 1.1.4, and `test/golden/2.0.0.json` holds 150 cases pinning the methods new in 2.0.0. Never regenerate either one.
-- **Records.** The plan, now a record: [plans/2026-09-25-modernization-and-v2-release.md](plans/2026-09-25-modernization-and-v2-release.md). The release ritual is in AGENTS.md; the npmjs.com trusted-publisher fields are in get-title-at-url's solution entry on trusted publishing.
+- **The release path.** release.yml checks that the tag is on master, waits for ci's push run, builds, runs publint and attw, tests, packs once, checks the tarball and runs the consumer fixtures on it, stages that tarball and makes the GitHub Release. The ci wait worked for 2.0.1-beta.2 and 2.0.1.
+- **The contract.** `test/golden/1.1.4.json` (322 cases), `2.0.0.json` (150) and `2.0.0-npm.json` (507); CI fails if any recording, capture script or `codec.cjs` changes. Never regenerate them.
+- **The wiki** (https://github.com/m4bwav/seeded-random-utilities/wiki, 9 pages, commit 3b789c5, 2026-09-29). How to update it at the next release: [notes/2026-09-28-github-wiki.md](notes/2026-09-28-github-wiki.md); the script and its output are `notes/2026-09-29-wiki-verify.mjs` and `.out.txt`.
 - **The codecov token of 2019** is not revoked, by Mark's decision; see the log.
+
+## Waiting on Mark
+
+- m4bwav/package-modernize#20: the skill fixes from this release (release job builds before publint, watch-run.sh reads the conclusion; lessons L-132 to L-134, L-127 confirmed). Merging it was refused to the agent as a merge without review.
+- m4bwav/package-modernization#16: the records (inventory row, Wikis row, kickoff status and findings, the overlay line on npm 2FA commands).
 
 ## Standing work
 
 1. **Dependabot** opens npm (minor and patch grouped) and GitHub Actions pull requests on Mondays. Merge when `ci` is green, and read the release notes for a major. Two majors are held in `.github/dependabot.yml`: TypeScript 7, until xo supports it, and the Node type definitions, which are bumped by hand.
-2. **A patch or minor** follows the ritual in AGENTS.md; no beta is needed unless `release.yml` or the npm setup changed. verify-published already passes `--minimum-dependency-age=0` to Deno for versions under 24 hours old.
+2. **A patch or minor** follows the ritual in AGENTS.md; no beta is needed unless `release.yml` or the npm setup changed. If release.yml's steps change, run the build job's `run:` lines in order in a fresh clone before tagging (skill L-132 `build-before-publint`). `npm deprecate` and `npm dist-tag` are Mark's to run in his terminal (after `npm login` when `npm whoami` fails); the agent gives the exact commands and reads the results back.
 3. **Never change a seeded sequence.** A fix goes under a new name, with a decision entry and a changelog line (AGENTS.md).
 4. **3.0.0**, not before Node 22 reaches end of life on 2027-04-30:
    - Remove the deprecated `getRandomIntegar`, `getRandomArbitrary`, `getRandomIntInclusive`, `generateRandomArrayOfUniqueIntegers` and the static `default`.
    - Raise `engines` to Node 24, as get-title-at-url's v4 plan does.
-5. **The `next` tag is gone** (npm dist-tags on 2026-09-28 list only `latest`); a 3.0.0 beta would add it again.
+   - After it: `next` to 3.0.0 or removed (never below `latest`).
+5. **The wiki** is updated at each release with wikiwright's update mode (the note above).
 6. **Optional, Mark:** revoke Codecov under Authorized OAuth Apps at github.com/settings/applications, and remove any unused SonarCloud or Travis CI app.
 7. **Optional Stage 5, not planned:** JSR, or a seeded-random playground page on markdavidrogers.com.
-8. **The wiki** (https://github.com/m4bwav/seeded-random-utilities/wiki, nine pages, 2026-09-28) is updated at each release with the wikiwright skill's update mode: [notes/2026-09-28-github-wiki.md](notes/2026-09-28-github-wiki.md) has the procedure, and the verification script and its seeded output are beside it.
+8. **Evergreen upkeep** the SessionStart hooks asked for on 2026-09-29 (refresh game-snapshots, context-health, everlast-protocol, unity-agent-cli; the evergreen plugin's verify-at-use claims), and package-modernize's research refresh by 2026-10-05. Not part of this package.
 
 ## Next single action
 
-Wait for Mark to merge pull request #18, then step 2 of "The retrofit: what is left" above.
+None for this package until Dependabot's next pull request or a new release. Mark merges package-modernize#20 and package-modernization#16.
 
 ## Dead ends hit
 
-- The Bash tool fails on nested quoting and drops the backslashes of Windows paths; use the Edit tool or a script file.
+- The Bash tool fails on nested quoting and drops the backslashes of Windows paths; use the Edit tool or a script file. A quoted heredoc turned `\\n` into a real newline inside a Python string on 2026-09-29.
 - `xo --fix` rewrites code; stage first and read the diff it makes to `src/`.
 - The everlast lint reads at-sign words as handles, and the handoff needs a `## Next single action` section.
+- A local preflight passes with a stale `dist/` on disk; only a fresh clone shows what a release job's step order does.

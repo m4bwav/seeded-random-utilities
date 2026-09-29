@@ -1,0 +1,538 @@
+## installed
+seeded-random-utilities@2.0.1 on Node v24.18.0
+
+## esm exports
+[ 'PRNG', 'Rand', 'SeededRandomUtilities', 'default' ]
+
+## cjs exports
+[ 'PRNG', 'Rand', 'SeededRandomUtilities', 'default' ]
+
+## cjs default, named export and static default are one class
+true
+
+## esm and cjs classes are the same object
+false
+
+## PRNG
+{
+  sfc32: 'sfc32',
+  mulberry32: 'mulberry32',
+  xoshiro128ss: 'xoshiro128ss',
+  mulberry32Reference: 'mulberry32Reference',
+  xoshiro128ssReference: 'xoshiro128ssReference'
+}
+
+## PRNG is frozen
+true
+
+## instance methods (2.0.0)
+[
+  'chooseBooleanRandomlyWithProbability',
+  'generateRandomArrayOfUniqueIntegers',
+  'getRandom',
+  'getRandomArbitrary',
+  'getRandomBool',
+  'getRandomChar',
+  'getRandomFloat',
+  'getRandomIntInclusive',
+  'getRandomIntegar',
+  'getRandomInteger',
+  'getRandomIntegerInclusive',
+  'getRandomString',
+  'getState',
+  'getUniqueRandomIntegers',
+  'random',
+  'selectRandomElement',
+  'selectUniqueRandomElements',
+  'selectWeightedRandomElement',
+  'shuffle'
+]
+
+## static members (2.0.0)
+[ 'default', 'fromState' ]
+
+## home: node home.mjs
+2
+sword
+[ 5, 3, 4, 1, 2 ]
+x3vSP91n
+
+## home: node home.mjs, second run
+2
+sword
+[ 5, 3, 4, 1, 2 ]
+x3vSP91n
+
+## home: node home.cjs
+2
+sword
+[ 5, 3, 4, 1, 2 ]
+x3vSP91n
+
+## home: deno version
+deno 2.9.6 (stable, release, x86_64-pc-windows-msvc)
+
+## home: deno run home-deno.mjs
+2
+sword
+[ 5, 3, 4, 1, 2 ]
+x3vSP91n
+
+## home: bun version
+1.4.2
+
+## home: bun home.mjs
+2
+sword
+[ 5, 3, 4, 1, 2 ]
+x3vSP91n
+
+## home: bun home.cjs
+2
+sword
+[ 5, 3, 4, 1, 2 ]
+x3vSP91n
+
+## types: tsc version
+Version 6.0.3
+
+## types: tsc ok.mts ok.cts (nodenext, strict)
+(no output: it compiles)
+
+## types: tsc wrong.mts
+types/wrong.mts(3,44): error TS2345: Argument of type '"SFC32"' is not assignable to parameter of type 'PRNG | undefined'.
+types/wrong.mts(4,7): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+## api: every method on seed api
+0.2225986470002681
+0.3113340560812503
+7
+4
+6
+0.018493871670216322
+false
+true
+o
+A
+KW)Js0o2m1{R
+5790e7
+blue
+[ 'b', 'd', 'f' ]
+common
+[ 5, 21, 29, 28, 9 ]
+[ 'c', 'd', 'a', 'b' ]
+hlole
+false
+{
+  algorithm: 'sfc32',
+  state: [ 1317705181, 2319868396, 1261223227, 2771394675 ]
+}
+
+## api: shuffle in place
+true [ 1, 4, 3, 5, 2 ]
+
+## api: Rand
+0.7808577308896929 0.7808577308896929
+
+## api: fromState
+{"algorithm":"sfc32","state":[3885599468,4079449797,991524871,3060519520]}
+true
+
+## api: a random source object
+0 0.25 3 true
+
+## api: rng.random is bound
+[ 0.7458354958798736, 0.3505882481113076, 0.15064405417069793 ]
+
+## api: deprecated names and their replacements
+1 1
+9.139566328842193 9.139566328842193
+4 4
+[ 5, 6, 2 ] [ 3, 9, 1 ]
+
+## repro: first three numbers per algorithm, seed 1234
+sfc32                  0.3111365893855691 0.9887247765436769 0.5898017960134894
+mulberry32             0.7808577308896929 0.2775131545495242 0.08979730936698616
+xoshiro128ss           0.028131370898336172 0.19379607401788235 0.09212694480083883
+mulberry32Reference    0.7808577308896929 0.2775131545495242 0.08979730936698616
+xoshiro128ssReference  0.48003580840304494 0.4744740214664489 0.5929719512350857
+
+## repro: seeds
+true
+true
+false
+false
+true
+true
+
+## repro: the default algorithm is sfc32, also for null
+true true
+
+## repro: esm and cjs builds agree
+true
+
+## repro: draws per call
+random()                                     1
+getRandomInteger(1, 7)                       1
+getRandomFloat(0, 1)                         1
+getRandomBool()                              1
+getRandomChar()                              1
+getRandomString(8)                           8
+selectWeightedRandomElement(3 items)         1
+getUniqueRandomIntegers(3, 1000)             3
+shuffle(10 items)                            10
+shuffle("hello")                             5
+selectRandomElement(10 items), call 1        10
+selectRandomElement(10 items), call 2        2
+selectRandomElement(10 items), call 3        3
+selectUniqueRandomElements(10 items, 3)      10
+chooseBooleanRandomlyWithProbability(4)      1
+generateRandomArrayOfUniqueIntegers(3, 9)    20
+
+## repro: adding a call shifts every later number
+29 28
+28 29
+
+## repro: independent streams
+true
+
+## repro: mulberry32 and mulberry32Reference part ways
+first different draw: 4917760
+
+## repro: xoshiro128ss and xoshiro128ssReference
+0.028131370898336172 0.48003580840304494
+
+## repro: unseeded
+TypeError: getState: only a generator created from a seed or a state has a state to export
+
+## errors: weights that overflow to Infinity
+RangeError: selectWeightedRandomElement: the weights must add up to more than 0
+
+## errors: every message
+new SeededRandomUtilities('x', 'SFC32')
+  TypeError: Unknown algorithm "SFC32"; use one of sfc32, mulberry32, xoshiro128ss, mulberry32Reference, xoshiro128ssReference
+new SeededRandomUtilities(['x'])
+  TypeError: A seed must be a string or a finite number, not x
+new SeededRandomUtilities(NaN)
+  TypeError: A seed must be a string or a finite number, not NaN
+new SeededRandomUtilities({})
+  TypeError: A seed must be a string or a finite number, not [object Object]
+new Rand('x', 'nope')
+  TypeError: Unknown algorithm "nope"; use one of sfc32, mulberry32, xoshiro128ss, mulberry32Reference, xoshiro128ssReference
+getRandomInteger(5, 1)
+  RangeError: getRandomInteger: there is no integer n with 5 <= n < 1 (bounds are rounded inwards)
+getRandomInteger(1.2, 1.8)
+  RangeError: getRandomInteger: there is no integer n with 2 <= n < 1 (bounds are rounded inwards)
+getRandomInteger(0)
+  RangeError: getRandomInteger: there is no integer n with 0 <= n < 0 (bounds are rounded inwards)
+getRandomInteger(1, Infinity)
+  TypeError: getRandomInteger: min and max must be finite numbers
+getRandomInteger(0, 2 ** 33)
+  RangeError: getRandomInteger: the range holds 8589934592 integers, more than the 2^32 that one draw can reach
+getRandomInteger(2 ** 53, 2 ** 53 + 10)
+  RangeError: getRandomInteger: the range must lie between -(2^53 - 1) and 2^53 - 1
+getRandomIntegerInclusive(3, 2)
+  RangeError: getRandomIntegerInclusive: there is no integer n with 3 <= n <= 2 (bounds are rounded inwards)
+getRandomFloat(1, 0)
+  RangeError: getRandomFloat: cannot draw from 1 to 0
+getRandomFloat(-Number.MAX_VALUE, Number.MAX_VALUE)
+  RangeError: getRandomFloat: cannot draw from -1.7976931348623157e+308 to 1.7976931348623157e+308
+getRandomFloat('1')
+  TypeError: getRandomFloat: min and max must be finite numbers
+getRandomBool(2)
+  RangeError: getRandomBool: probability must be from 0 to 1, not 2
+getRandomBool('0.5')
+  TypeError: getRandomBool: probability must be a number
+getRandomChar('')
+  RangeError: getRandomChar: pool must not be empty
+getRandomChar(42)
+  TypeError: getRandomChar: pool must be a string
+getRandomString(-1)
+  RangeError: getRandomString: length must be a whole number from 0 to 2^24
+getRandomString(2 ** 25)
+  RangeError: getRandomString: length must be a whole number from 0 to 2^24
+selectRandomElement(null)
+  TypeError: Parameter source is not set
+selectUniqueRandomElements([1], -1)
+  RangeError: Parameter picks cannot be negative
+selectWeightedRandomElement(['a'], [1, 2])
+  RangeError: selectWeightedRandomElement: source and weights must have the same length
+selectWeightedRandomElement(['a', 'b'], [0, 0])
+  RangeError: selectWeightedRandomElement: the weights must add up to more than 0
+selectWeightedRandomElement(['a'], [-1])
+  RangeError: selectWeightedRandomElement: every weight must be a finite number of 0 or more
+selectWeightedRandomElement('ab', [1, 1])
+  TypeError: selectWeightedRandomElement: source and weights must be arrays
+getUniqueRandomIntegers(11, 10)
+  RangeError: getUniqueRandomIntegers: cannot pick 11 different integers from a range that holds 10
+getUniqueRandomIntegers(1.5, 10)
+  RangeError: getUniqueRandomIntegers: amount must be a whole number from 0 to 2^24
+generateRandomArrayOfUniqueIntegers(-1, 3)
+  RangeError: Parameter amount cannot be negative
+SeededRandomUtilities.fromState({})
+  TypeError: fromState: expected an object that getState() returned
+SeededRandomUtilities.fromState({algorithm: 'sfc32', state: [0, 0, 0, 0]})
+  returned SeededRandomUtilities { random: [Function: bound random] }
+new SeededRandomUtilities(new Rand('x')).getState()
+  TypeError: getState: only a generator created from a seed or a state has a state to export
+
+## edge: odd inputs that do not throw
+selectRandomElement([])
+  returned undefined
+selectUniqueRandomElements([1, 2, 3], 5)
+  returned [ 1, 2, 3 ]
+selectUniqueRandomElements([1, 2, 3], 0)
+  returned []
+selectWeightedRandomElement(['a', 'b', 'c'], [0, 1, 0])
+  returned 'b'
+getRandomInteger(1.5, 4.5)
+  returned 3
+getRandomInteger(-3, -1)
+  returned -2
+getRandomIntegerInclusive(7, 7)
+  returned 7
+getRandomFloat(5, 5)
+  returned 5
+getRandomBool(0)
+  returned false
+getRandomBool(1)
+  returned true
+getRandomString(0)
+  returned ''
+getRandomString(4, '🎲🃏')
+  returned '🃏🃏🎲🃏'
+getUniqueRandomIntegers(0, 10)
+  returned []
+getUniqueRandomIntegers(3, 3)
+  returned [ 1, 2, 0 ]
+shuffle('')
+  returned ''
+shuffle(null)
+  returned null
+shuffle([])
+  returned []
+shuffle('a😀b')
+  returned 'b😀a'
+chooseBooleanRandomlyWithProbability(3, 0)
+  returned false
+chooseBooleanRandomlyWithProbability(4, 4)
+  returned true
+getRandomIntegar(0, 10) (deprecated, reversed bounds)
+  returned 9
+getRandomIntegar(5, 5) (deprecated, empty range)
+  returned 5
+generateRandomArrayOfUniqueIntegers(10, 3)
+  returned [ 0, 1, 3, 2 ]
+generateRandomArrayOfUniqueIntegers(3, 9, true)
+  returned [ 0, 3, 4 ]
+new SeededRandomUtilities(undefined, 'nope').random() < 1
+  returned true
+
+## edge: getRandomFloat can return max on a tiny range
+58 of 100 draws returned max
+
+## recipes: dice
+[ 2, 3, 1 ] 6
+[ 1 ]
+
+## recipes: loot table
+[
+  'gold', 'gold',
+  'gold', 'gold',
+  'gold', 'gold',
+  'gold', 'potion'
+]
+
+## recipes: deal cards
+9♣ 5♦ J♦ A♦ J♠ | 4♥ 8♥ 2♦ 10♠ Q♦
+
+## recipes: save and resume
+{"level":4,"rng":{"algorithm":"sfc32","state":[1767422353,3670926543,3158750813,2851291731]}}
+[ 93, 13 ] [ 93, 13 ]
+
+## recipes: daily seed
+754 754
+
+## recipes: sample without replacement
+[ 'Ben', 'Eve', 'Hal' ]
+[ 392127638, 955798540, 528622595 ]
+
+## recipes: a seeded Math.random for another function
+1.0192600812064483 1.037283293157816
+
+## recipes: log the seed in a test
+seed run-2026-09-28: [ 24, 39, 5, 79, 37 ]
+
+## recipes: random ids that are not secret
+[ 'mpdwbb', 'qhe7dw', '84tjr1' ]
+
+## faq: a Date as the seed
+TypeError
+44
+18
+
+## faq: instanceof across the two builds
+false true
+true
+
+## v1.0.0: installed
+seeded-random-utilities@1.0.0 with rand-seed 0.1.5
+
+## v1.0.0: require() exports
+[ 'PRNG', 'Rand', 'default' ]
+
+## v1.0.0: instance methods
+[
+  'chooseBooleanRandomlyWithProbability',
+  'generateRandomArrayOfUniqueIntegers',
+  'getRandom',
+  'getRandomArbitrary',
+  'getRandomBool',
+  'getRandomChar',
+  'getRandomIntInclusive',
+  'getRandomIntegar',
+  'random',
+  'selectRandomElement',
+  'selectUniqueRandomElements',
+  'shuffle'
+]
+
+## v1.0.0: PRNG
+{
+  sfc32: 'sfc32',
+  mulberry32: 'mulberry32',
+  xoshiro128ss: 'xoshiro128ss'
+}
+
+## v1.1.3: installed
+seeded-random-utilities@1.1.3 with rand-seed 0.1.5
+
+## v1.1.3: require() exports
+[ 'PRNG', 'Rand', 'default' ]
+
+## v1.1.3: instance methods
+[
+  'chooseBooleanRandomlyWithProbability',
+  'generateRandomArrayOfUniqueIntegers',
+  'getRandom',
+  'getRandomArbitrary',
+  'getRandomBool',
+  'getRandomChar',
+  'getRandomIntInclusive',
+  'getRandomIntegar',
+  'random',
+  'selectRandomElement',
+  'selectUniqueRandomElements',
+  'shuffle'
+]
+
+## v1.1.3: PRNG
+{
+  sfc32: 'sfc32',
+  mulberry32: 'mulberry32',
+  xoshiro128ss: 'xoshiro128ss'
+}
+
+## v1.1.4: installed
+seeded-random-utilities@1.1.4 with rand-seed 0.1.5
+
+## v1.1.4: require() exports
+[ 'PRNG', 'Rand', 'default' ]
+
+## v1.1.4: instance methods
+[
+  'chooseBooleanRandomlyWithProbability',
+  'generateRandomArrayOfUniqueIntegers',
+  'getRandom',
+  'getRandomArbitrary',
+  'getRandomBool',
+  'getRandomChar',
+  'getRandomIntInclusive',
+  'getRandomIntegar',
+  'random',
+  'selectRandomElement',
+  'selectUniqueRandomElements',
+  'shuffle'
+]
+
+## v1.1.4: PRNG
+{
+  sfc32: 'sfc32',
+  mulberry32: 'mulberry32',
+  xoshiro128ss: 'xoshiro128ss'
+}
+
+## v1.1.4 and 2.0.0: the same calls
+2 2
+-0.8846243685111403 -0.8846243685111403
+2 2
+false false
+v v
+[ 3, 4, 5, 2, 1 ] [ 3, 4, 5, 2, 1 ]
+[ 3, 7, 8 ] [ 3, 7, 8 ]
+
+## v1.1.4 and 2.0.0: number seeds
+0.3204681423958391 0.3204681423958391 0.3204681423958391
+0.8769250644836575 0.8769250644836575
+
+## v1.1.4 and 2.0.0: an unknown algorithm name
+false
+TypeError: Unknown algorithm "SFC32"; use one of sfc32, mulberry32, xoshiro128ss, mulberry32Reference, xoshiro128ssReference
+
+## v1.1.4 and 2.0.0: shuffling a string with an emoji
+"ab\ude00\ud83d" 4 false
+"b😀a" 3 true
+
+## v1.1.4 and 2.0.0: getRandomBool as an array callback
+[ false, true ]
+TypeError: getRandomBool: probability must be a number
+[ false, true ]
+
+## v1.1.4 and 2.0.0: import from an ES module
+object function
+
+## v1.0.0: the same seed, the same shuffle?
+false
+false
+
+## v1.0.0: types exported from index.d.ts
+export { Rand }, export { PRNG }, export { ISeededRandomUtilities }
+
+## v1.1.3: the same seed, the same shuffle?
+false
+false
+
+## v1.1.3: types exported from index.d.ts
+export { Rand }, export { PRNG }, export { ISeededRandomUtilities }
+
+## v1.1.4: the same seed, the same shuffle?
+true
+true
+
+## v1.1.4: types exported from index.d.ts
+export { Rand }, export { PRNG }, export { RandomUtilities }
+
+## golden: 1.1.4 today against test/golden/1.1.4.json
+322 cases, 322 identical to the golden file
+
+## golden: 2.0.0 today against test/golden/1.1.4.json
+322 cases, 316 identical to the golden file
+differs: shuffle(["a😀b"]) seed "1234" sfc32
+differs: shuffle(["a😀b"]) seed "1234" mulberry32
+differs: shuffle(["a😀b"]) seed "1234" xoshiro128ss
+differs: shuffle(["a😀b"]) seed "seeded-random-utili sfc32
+differs: shuffle(["a😀b"]) seed "seeded-random-utili mulberry32
+differs: shuffle(["a😀b"]) seed "seeded-random-utili xoshiro128ss
+quirk numberSeed1234EqualsEmptyStringSeed: golden true, now false
+quirk numberSeed5678EqualsEmptyStringSeed: golden true, now false
+quirk numberSeed0EqualsEmptyStringSeed: golden true, now false
+quirk unknownAlgorithmIsDeterministic: golden false, now true
+quirk nullAlgorithmIsDeterministic: golden false, now true
+quirk arraySeed: golden {"$throws":"t.charCodeAt is not a function"}, now {"$throws":"A seed must be a string or a finite number, not 1234"}
+
+## golden: 2.0.0 today against test/golden/2.0.0.json
+150 cases, 150 identical to the golden file
+
+## done
+ok

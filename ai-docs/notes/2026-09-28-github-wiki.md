@@ -1,11 +1,11 @@
 ---
-title: GitHub wiki written and published for 2.0.0
+title: GitHub wiki written and published for 2.0.0, updated for 2.0.1
 kind: note
 date: 2026-09-28
-verified: 2026-09-28
+verified: 2026-09-29
 stale_after: 2027-03-28
 tags: [wiki, docs, 2.0.0, github, wikiwright, golden]
-summary: "the nine wiki pages, where their git working copy is, how every example was verified against the published 2.0.0 (the script and its output beside this note), how the golden captures fed Versions and upgrading, the facts the README lacks, the inaccuracies in the shipped docs, and how to update the wiki at the next release; read before touching the wiki, the README's error sentence, or the HANDOFF's dist-tag line"
+summary: "the nine wiki pages (updated for 2.0.1 on 2026-09-29), where their git working copy is, how every example was verified against the published 2.0.0 (the script and its output beside this note), how the golden captures fed Versions and upgrading, the facts the README lacks, the inaccuracies in the shipped docs, and how to update the wiki at the next release; read before touching the wiki, the README's error sentence, or the HANDOFF's dist-tag line"
 ---
 
 # GitHub wiki for 2.0.0
@@ -29,6 +29,16 @@ Published on 2026-09-28 as wiki commit `7980d4b`. Results:
 
 Pages: Home, Getting started, API reference, Same seed same sequence, Errors and edge cases, Recipes, Versions and upgrading, FAQ, Development.
 
+## Update for 2.0.1 (2026-09-29)
+
+Wikiwright's update mode, wiki commit `3b789c5` (`7980d4b..3b789c5`, fast-forward). The script is now `2026-09-29-wiki-verify.mjs` with its output `2026-09-29-wiki-verify.out.txt`; the 2.0.0 files stay beside them as the record of that run.
+
+- **Script changes.** `VERSION` 2.0.1; the Deno import line follows `VERSION`; a new `V113=` folder (1.1.3 from npm) joins the old-version loop; new sections: `errors: weights that overflow to Infinity`, and per old version `the same seed, the same shuffle?` and `types exported from index.d.ts`. The existing section labels that say 2.0.0 were kept, so the diff against the 2.0.0 output stays readable.
+- **Diff against the 2.0.0 output.** 80 sections: 68 same, 1 changed (the `installed` line), 11 added. Deno, Bun and all three golden replays printed exactly what they printed for 2.0.0. Node 20.20.2 (`npx node@20`) printed the same as Node 24.18.0 in every section it ran (Deno and Bun were not passed to it).
+- **Corrections made on the pages.** Versions and upgrading: 1.1.4 is not "the same code as 1.1.3" (it made `shuffle` use the seed and renamed the interface); 1.0.0 to 1.1.3 export `ISeededRandomUtilities`, not `RandomUtilities`; a new section, Upgrading from 1.0.0 to 1.1.3, shows their shuffle ignoring the seed (`false false` for 1.0.0 and 1.1.3, `true true` for 1.1.4); the deprecation message and dist-tags; the Types section read from each version's `index.d.ts`. API reference: `RandomUtilities` since 1.1.4, and the array `shuffle` row notes `Math.random()` before 1.1.4. Same seed, same sequence: "every version since 1.0" became since 1.1.4. FAQ: the upgrade answer covers 1.0.0 to 1.1.3 and the 507-case recording. Errors: the overflowing-weights case (the message says "add up to more than 0" for a sum of Infinity). Development: 2255 tests, the three golden files and the untouched check, the release checks, the new script name. Version lines on Home, Getting started, API reference, Errors, Recipes, Same seed, and the footer.
+- **Checks.** `check --version 2.0.1`: 0 errors, 0 warnings. `outputs`: 46 checked, 0 missing, 1 skipped (the deprecation message, from `npm view`). Everwrite: 0 strong, 6 weak (long sentences). `live`: 9 pages, 0 failures.
+- **Registry, read 2026-09-29.** 10 versions; dist-tags `latest` and `next` both 2.0.1; 1.0.0 to 1.1.3 deprecated; weekly per-version counts unchanged from 2026-09-28 (week to 2026-09-27); month 502, year 4,291; 2.0.1: 10 files, 175,411 bytes unpacked.
+
 ## Where the pages are
 
 `D:\m4bwa\Claude\Projects\Ai\seeded-random-utilities.wiki` (a sibling of this clone, outside this repository), branch `master`, remote `origin` = `https://github.com/m4bwav/seeded-random-utilities.wiki.git`. Files: `Home.md`, `Getting-Started.md`, `API-Reference.md`, `Same-Seed-Same-Sequence.md`, `Errors-and-Edge-Cases.md`, `Recipes.md`, `Versions-and-Upgrading.md`, `FAQ.md`, `Development.md`, `_Sidebar.md`, `_Footer.md`. Plain markdown links between pages (`[Recipes](Recipes)`), no wikilinks, LF line endings.
@@ -41,14 +51,14 @@ The wiki feature had been switched off in Stage 2 of the modernization (log, 202
 
 1. `git -C D:\m4bwa\Claude\Projects\Ai\seeded-random-utilities.wiki pull --ff-only`.
 2. Re-verify in a scratch folder outside the repository:
-   - `npm init -y`, then `npm install seeded-random-utilities@<new> typescript@6`, and copy in `2026-09-28-wiki-verify.mjs` with `VERSION` changed.
-   - Install `seeded-random-utilities@1.1.4` and `@1.0.0` in two more folders, and `deno` and `bun` from npm in a third.
-   - Run `node wiki-verify.mjs > out.txt` with `V114=`, `V100=`, `RT=` pointing at those folders and `GOLDEN=` at this clone's `test/golden`. Without them the old-version, runtime and golden sections are missing.
-   - The output is seeded, so it is identical on every run and machine. Diff it with `2026-09-28-wiki-verify.out.txt`: every difference is a page to fix.
+   - `npm init -y`, then `npm install seeded-random-utilities@<new> typescript@6`, and copy in the newest `*-wiki-verify.mjs` (2026-09-29) with `VERSION` changed.
+   - Install `seeded-random-utilities@1.1.4`, `@1.1.3` and `@1.0.0` in three more folders, and `deno` and `bun` from npm in a fifth.
+   - Run `node wiki-verify.mjs > out.txt` with `V114=`, `V113=`, `V100=`, `RT=` pointing at those folders and `GOLDEN=` at this clone's `test/golden`. Without them the old-version, runtime and golden sections are missing. Run it once more under the oldest Node in `engines` (`npx -y node@20 wiki-verify.mjs`).
+   - The output is seeded, so it is identical on every run and machine. `wikiwright.py diffout <newest *-wiki-verify.out.txt> out.txt`: every difference is a page to fix.
 3. `python <wikiwright>/scripts/wikiwright.py outputs <wiki dir> out.txt`: every output on a page must be in the new output. Then `wikiwright.py check <wiki dir> --version <new>` and the everwrite checker.
 4. Commit, `git push`, `wikiwright.py live m4bwav/seeded-random-utilities <wiki dir>`.
 
-Pages that name the version: Home (last line), Getting started (the Deno import line and the first sentence), API reference (first paragraph), Versions and upgrading (table, downloads, the 3.0.0 section), Development (the test count only), the footer. The API reference's "Since" column and the deprecated table change at 3.0.0.
+Pages that name the version: Home (the sentence under the example and the last line), Getting started (the Deno import line and the first sentence), API reference (first paragraph), Errors and edge cases (first sentence), Recipes (first sentence), Same seed, same sequence (first sentence), Versions and upgrading (table, downloads, dist-tags, the 3.0.0 section), Development (the test count and the script name), the footer. The API reference's "Since" column and the deprecated table change at 3.0.0.
 
 ## How the examples were verified
 
@@ -61,7 +71,7 @@ Everything ran on Windows 11 with Node 24.18.0 and npm 11.16.0, in a scratch pro
 - **Golden captures.** `test/golden/capture-1.1.4.cjs` was replayed against 1.1.4 today (322 of 322 cases identical to `1.1.4.json`) and against 2.0.0 with only its rand-seed version line patched (316 of 322 identical; the 6 are the emoji shuffle, and the quirks differ exactly as the CHANGELOG lists). `capture-2.0.0.cjs` was run against the published `dist/index.cjs` (150 of 150 identical to `2.0.0.json`). The golden files were only read, never rewritten. This was the first time a golden capture fed a wikiwright Versions page.
 - **The repository's own tests.** `npm test` on master: 1223 of 1223.
 
-Not run: browsers (the page says so), and 1.1.0 to 1.1.3, whose type name comes from the CHANGELOG.
+Not run: browsers (the page says so), and 1.1.0 to 1.1.2 (the CHANGELOG says their `dist/` is 1.0.0's; 1.1.3 was run for 2.0.1).
 
 ## Facts verified while writing (not in the README)
 
@@ -73,7 +83,7 @@ Not run: browsers (the page says so), and 1.1.0 to 1.1.3, whose type name comes 
 - The deprecated `generateRandomArrayOfUniqueIntegers(10, 3)` returns all four integers 0 to 3, and with `skipShuffle` they come back in ascending order.
 - `fromState` accepts a hand-made `{algorithm: 'sfc32', state: [0, 0, 0, 0]}`.
 - An array seed's message prints the array joined (`not x` for `['x']`). A `Date` seed's message contains the local time zone, so it differs between machines.
-- 1.0.0 exported the interface as `ISeededRandomUtilities`; 1.1.x renamed it `RandomUtilities`.
+- 1.0.0 to 1.1.3 export the interface as `ISeededRandomUtilities`; 1.1.4 renamed it `RandomUtilities`. (This line said "1.1.x renamed it" until 2026-09-29, taken from the CHANGELOG entry that 2.0.1 corrected.)
 - 1.1.4 imported from an ES module gives the exports object as default (`typeof S` is `object`, `S.default` a function).
 - Yarn 4 with Plug'n'Play needs `yarn node script.mjs`.
 - Deno runs `npm:seeded-random-utilities@2.0.0` with no permission flags.
@@ -84,7 +94,7 @@ Not run: browsers (the page says so), and 1.1.0 to 1.1.3, whose type name comes 
 
 ## Inaccuracies found in the docs
 
-Numbered; the README and CHANGELOG ship inside the package, so they reach npm only with a release. Not fixed.
+Numbered; the README and CHANGELOG ship inside the package, so they reach npm only with a release. Items 1 and 4 were fixed in 2.0.1 (2026-09-29), and item 4 turned out worse than written: the rename came in 1.1.4, not 1.1.0.
 
 1. The README's API section ends: "Bad arguments throw `TypeError` or `RangeError` with a message that names the method: an empty or reversed range, ...". That is wrong in two ways:
    - `getRandomFloat` accepts an empty range (`getRandomFloat(5, 5)` returns 5); only the integer methods throw for one.
