@@ -69,7 +69,7 @@ jobs:
         run: |
           npm pack --ignore-scripts
           version=$(node -p "require('./package.json').version")
-          node test/package/check-tarball.mjs "seeded-random-utilities-$version.tgz" "$version"
+          node scripts/check-tarball.mjs "seeded-random-utilities-$version.tgz" "$version"
       - name: Coverage of src/ (95 percent lines, 90 percent branches)
         run: npm run coverage
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1

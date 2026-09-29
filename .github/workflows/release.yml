@@ -142,7 +142,7 @@ jobs:
         env:
           VERSION: ${{ steps.version.outputs.version }}
           TARBALL: ${{ steps.version.outputs.tarball }}
-        run: node test/package/check-tarball.mjs "$TARBALL" "$VERSION"
+        run: node scripts/check-tarball.mjs "$TARBALL" "$VERSION"
       - name: Consumer fixtures on the tarball that gets staged
         env:
           CONSUMER_PACKAGE: ${{ github.workspace }}/${{ steps.version.outputs.tarball }}
@@ -190,7 +190,7 @@ jobs:
         env:
           VERSION: ${{ needs.build.outputs.version }}
           TARBALL: ${{ needs.build.outputs.tarball }}
-        run: node test/package/check-tarball.mjs "$TARBALL" "$VERSION"
+        run: node scripts/check-tarball.mjs "$TARBALL" "$VERSION"
       - name: Consumer fixtures on the tarball that gets staged
         env:
           CONSUMER_PACKAGE: ${{ github.workspace }}/${{ needs.build.outputs.tarball }}

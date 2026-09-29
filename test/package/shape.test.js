@@ -4,7 +4,7 @@ import {access, readFile} from 'node:fs/promises';
 import {test} from 'node:test';
 import {fileURLToPath} from 'node:url';
 import vm from 'node:vm';
-import {PUBLISHED_FILES, TARBALL_BUDGET} from './published-files.js';
+import {PUBLISHED_FILES, TARBALL_BUDGET} from '../../scripts/published-files.js';
 
 const root = fileURLToPath(new URL('../..', import.meta.url));
 const read = file => readFile(new URL(`../../${file}`, import.meta.url), 'utf8');

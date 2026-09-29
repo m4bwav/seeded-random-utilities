@@ -1,4 +1,4 @@
-// What the npm tarball holds, shared by shape.test.js (a dry-run pack of the checkout) and check-tarball.mjs (the tarball release.yml stages).
+// What the npm tarball holds, shared by test/package/shape.test.js (a dry-run pack of the checkout) and check-tarball.mjs (the tarball release.yml stages).
 export const PUBLISHED_FILES = [
   'CHANGELOG.md',
   'LICENSE',
