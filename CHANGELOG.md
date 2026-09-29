@@ -2,7 +2,7 @@
 
 All notable changes to this package. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the package follows [Semantic Versioning](https://semver.org/).
 
-## [2.0.1] - Unreleased
+## [2.0.1] - 2026-09-29
 
 The same code and the same answers as 2.0.0. This release corrects the documentation, which npm shows from the package, and changes how releases are made.
 
