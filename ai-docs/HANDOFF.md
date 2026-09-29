@@ -1,6 +1,6 @@
 # Handoff
 
-Updated 2026-09-25: seeded-random-utilities 2.0.0 is released and verified, and the modernization plan is done. What remains is standing work. Read [log.md](log.md) for evidence.
+Updated 2026-09-29: a retrofit to the package-modernize standard is in progress on the branch `v2-retrofit` ([plans/2026-09-29-retrofit-and-2.0.1-release.md](plans/2026-09-29-retrofit-and-2.0.1-release.md)). Phase 0 is done ([notes/2026-09-29-phase-0-gap-audit.md](notes/2026-09-29-phase-0-gap-audit.md), the third golden recording `test/golden/2.0.0-npm.json`); the plan waits for Mark's rulings on R1 to R12. Below, the state of 2.0.0 and the standing work, as before. Read [log.md](log.md) for evidence.
 
 ## Current state
 
@@ -29,7 +29,7 @@ Updated 2026-09-25: seeded-random-utilities 2.0.0 is released and verified, and 
 
 ## Next single action
 
-Nothing is pending. Start from item 1 when Dependabot pull requests appear.
+Get Mark's rulings on the retrofit plan's decisions R1 to R12 (silence means the recommendations stand), then run Phase 2 on `v2-retrofit`.
 
 ## Dead ends hit
 
