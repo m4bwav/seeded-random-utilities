@@ -1,5 +1,7 @@
 # seeded-random-utilities
 
+![A field of identical crop rows where the young plants bear small dice as fruit](https://raw.githubusercontent.com/m4bwav/seeded-random-utilities/master/.github/images/banner.jpg)
+
 [![npm version](https://img.shields.io/npm/v/seeded-random-utilities.svg)](https://www.npmjs.com/package/seeded-random-utilities)
 [![CI](https://github.com/m4bwav/seeded-random-utilities/actions/workflows/ci.yml/badge.svg)](https://github.com/m4bwav/seeded-random-utilities/actions/workflows/ci.yml)
 [![npm downloads](https://img.shields.io/npm/dm/seeded-random-utilities.svg)](https://www.npmjs.com/package/seeded-random-utilities)
