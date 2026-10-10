@@ -174,6 +174,10 @@ The four old methods still work, with 1.1.4's behaviour for every input. They ar
 
 The generators are ported from [rand-seed](https://github.com/michaeldzjap/rand-seed) 0.1.5 (MIT, Michael Dzjaparidze), which this package depended on until 2.0.0. rand-seed took them from [bryc's public-domain JavaScript ports](https://github.com/bryc/code/blob/master/jshash/PRNGs.md) of the algorithms by Chris Doty-Humphrey (sfc32), Tommy Ettinger (mulberry32) and David Blackman and Sebastiano Vigna (xoshiro128**). The range helpers began as the examples on MDN's `Math.random()` page.
 
+## Package page
+
+- npm: [seeded-random-utilities](https://www.npmjs.com/package/seeded-random-utilities)
+
 ## License
 
 MIT © Mark Rogers. [LICENSE](LICENSE) includes rand-seed's notice. Security reports: see [SECURITY.md](SECURITY.md).
