@@ -36,7 +36,7 @@ Updated 2026-09-29: the retrofit to the package-modernize standard is done ([pla
 
 ## Next single action
 
-None for this package until Dependabot's next pull request or a new release. Mark merges package-modernize#20 and package-modernization#16.
+Merge Dependabot pull request #26 (dev only, green), then clear Dependabot alert #123 (low, katex below 0.18.2, transitive dev dependency held at ^0.16.0) with an `overrides` entry or a parent upgrade in one small pull request; #26 does not fix it (checked 2026-10-13).
 
 ## Dead ends hit
 
