@@ -1,0 +1,9 @@
+{
+  "name": "@m4bwav/seeded-random-utilities",
+  "version": "2.0.1",
+  "license": "MIT",
+  "exports": "./src/index.ts",
+  "publish": {
+    "include": ["src", "README.md", "LICENSE", "CHANGELOG.md", "jsr.json"]
+  }
+}

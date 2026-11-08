@@ -1,6 +1,7 @@
 # A tag v<version> (pushed by `npm version` and `git push --follow-tags`) on a master commit whose ci passed builds and tests
 # the package, packs it once, checks that tarball's files and runs the consumer fixtures on it (Linux with Node 24 and 20,
-# Windows), stages exactly that tarball on npm through trusted publishing, and creates the GitHub Release. Nothing goes live
+# Windows), stages exactly that tarball on npm through trusted publishing, publishes src/ to JSR as
+# @m4bwav/seeded-random-utilities (OIDC), and creates the GitHub Release. Nothing goes live
 # until Mark approves the staged version on npmjs.com with two-factor authentication; then run verify-published.yml
 # with the version.
 # `npm version` pushes the version commit and its tag together, so ci on that commit is still running when this starts: the
@@ -239,6 +240,30 @@ jobs:
         run: |
           echo "$SHA512  $TARBALL" | sha512sum -c -
           npm stage publish "./$TARBALL" --tag "$DIST_TAG" --ignore-scripts
+
+  jsr:
+    name: publish on JSR
+    needs: [build, publish]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    # Runs once the npm stage succeeded. JSR trades the job's OIDC token for a publish token (no secret); the package
+    # @m4bwav/seeded-random-utilities on jsr.io must be linked to this repository. The version comes from package.json.
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - name: Copy the package.json version into jsr.json
+        env:
+          VERSION: ${{ needs.build.outputs.version }}
+        run: node -e "const fs=require('fs');const j=JSON.parse(fs.readFileSync('jsr.json','utf8'));j.version=process.env.VERSION;fs.writeFileSync('jsr.json',JSON.stringify(j,null,2))"
+      - run: npx --yes jsr@0.14.3 publish --allow-dirty
 
   github-release:
     name: GitHub Release
