@@ -35,7 +35,13 @@
 /**
 The generator algorithms. The values are plain strings, so `'sfc32'` works wherever `PRNG.sfc32` does. Frozen, so no code can change what a name means.
 */
-export const PRNG = Object.freeze({
+export const PRNG: Readonly<{
+  sfc32: 'sfc32';
+  mulberry32: 'mulberry32';
+  xoshiro128ss: 'xoshiro128ss';
+  mulberry32Reference: 'mulberry32Reference';
+  xoshiro128ssReference: 'xoshiro128ssReference';
+}> = Object.freeze({
   /**
   Sfc32 (Chris Doty-Humphrey's Small Fast Counting generator, from PractRand): 128-bit state. The default, and the recommended choice. As in 1.1.4.
   */
